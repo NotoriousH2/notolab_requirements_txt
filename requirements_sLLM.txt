@@ -1,8 +1,8 @@
 # PyTorch CUDA 12.8 빌드 지정
 --index-url https://download.pytorch.org/whl/cu128
-torch==2.9.0
-torchvision==0.24.0
-torchaudio==2.9.0
+torch==2.8.0
+torchvision==0.23.0
+torchaudio==2.8.0
 
 # 나머지 패키지들은 PyPI에서 설치
 --extra-index-url https://pypi.org/simple
@@ -26,7 +26,7 @@ langgraph
 sentence_transformers
 langchain_chroma
 langchain_qdrant
-ragas
+ragas==0.4.0
 sacrebleu
 rank_bm25
 kiwipiepy==0.19.1
