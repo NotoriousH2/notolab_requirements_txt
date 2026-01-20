@@ -37,6 +37,7 @@ peft
 accelerate
 datasets
 huggingface_hub
+hf_transfer
 trl
 transformers==4.57.3
 bitsandbytes
