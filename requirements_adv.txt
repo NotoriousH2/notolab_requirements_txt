@@ -24,9 +24,6 @@ langgraph
 # RAG
 sentence_transformers
 langchain_chroma
-ragas
-sacrebleu
-rank_bm25
 kiwipiepy
 
 
