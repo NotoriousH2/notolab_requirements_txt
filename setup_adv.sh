@@ -33,10 +33,4 @@ https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requ
 echo "[5/6] Python 패키지 설치"
 pip install -r requirements.txt
 
-echo "[6/6] Ollama 설치"
-curl -fsSL https://ollama.com/install.sh | sh
-
-export OLLAMA_CONTEXT_LENGTH=16384
-export OLLAMA_KEEP_ALIVE=1200
-
 echo "✅ 환경 설정 완료"
