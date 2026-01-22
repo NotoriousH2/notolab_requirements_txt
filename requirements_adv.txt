@@ -34,6 +34,7 @@ accelerate
 datasets
 huggingface_hub
 trl
+hf_transfer
 transformers==4.57.3
 bitsandbytes
 
