@@ -32,13 +32,14 @@ mkdir -p 실습
 cd 실습
 
 echo "[5/8] 가상환경 생성"
-uv venv .venv
+uv venv .venv --seed
 source .venv/bin/activate
 
 echo "[6/8] requirements 파일 다운로드 및 패키지 설치"
 wget -O requirements.txt \
 https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_PEFT.txt
-uv pip install -r requirements.txt
+uv pip compile requirements.txt -o requirements-lock.txt
+uv pip install -r requirements-lock.txt
 
 echo "[7/8] Jupyter 커널 등록"
 uv pip install ipykernel
