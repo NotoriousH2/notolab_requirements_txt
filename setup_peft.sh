@@ -24,6 +24,7 @@ echo "CUDA 버전 확인 완료: $CUDA_VERSION"
 echo "[3/8] uv 설치"
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source "$HOME/.local/bin/env"
+export UV_CACHE_DIR=/workspace/.uv-cache
 
 echo "[4/8] 실습 디렉토리 생성"
 cd /workspace
