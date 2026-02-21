@@ -22,7 +22,7 @@ fi
 echo "CUDA 버전 확인 완료: $CUDA_VERSION"
 
 echo "[3/8] uv 설치"
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh
 source "$HOME/.local/bin/env"
 export UV_CACHE_DIR=/workspace/.uv-cache
 
