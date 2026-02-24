@@ -29,6 +29,9 @@ cat >> ~/.bashrc <<'EOF'
 
 # NotoLab 환경 설정
 export UV_CACHE_DIR=/tmp/.uv-cache
+export PIP_CACHE_DIR=/tmp/.pip-cache
+export HF_HOME=/tmp/hf
+export TRANSFORMERS_CACHE=/tmp/hf
 source /tmp/.venv/bin/activate
 EOF
 
