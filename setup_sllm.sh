@@ -25,6 +25,14 @@ echo "[3/8] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh
 source "$HOME/.local/bin/env"
 export UV_CACHE_DIR=/tmp/.uv-cache
+cat >> ~/.bashrc <<'EOF'
+
+# NotoLab 환경 설정
+export UV_CACHE_DIR=/tmp/.uv-cache
+export OLLAMA_CONTEXT_LENGTH=16384
+export OLLAMA_KEEP_ALIVE=1200
+source /tmp/.venv/bin/activate
+EOF
 
 echo "[4/8] 실습 디렉토리 생성"
 cd /workspace
@@ -35,7 +43,6 @@ echo "[5/8] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
-export HF_HOME=/tmp/.cache/huggingface
 
 echo "[6/8] requirements 파일 다운로드 및 패키지 설치"
 wget -O requirements.txt \
@@ -50,10 +57,6 @@ python -m ipykernel install --name "NotoLab" --display-name "NotoLab"
 echo "[8/8] Ollama 설치"
 curl -fsSL https://ollama.com/install.sh | sh
 
-cat >> /etc/environment <<'EOF'
-OLLAMA_CONTEXT_LENGTH=16384
-OLLAMA_KEEP_ALIVE=1200
-EOF
 
 echo "✅ 환경 설정 완료"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
