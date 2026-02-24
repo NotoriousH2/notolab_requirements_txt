@@ -21,6 +21,7 @@ langchain_openai
 langchain_huggingface
 langchain_tavily
 langgraph
+langchain-docling
 
 # RAG
 sentence_transformers
