@@ -23,7 +23,11 @@ echo "CUDA 버전 확인 완료: $CUDA_VERSION"
 
 echo "[3/7] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh
-source "$HOME/.local/bin/env"
+if [ -f "$HOME/.local/bin/env" ]; then
+    source "$HOME/.local/bin/env"
+else
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 export UV_CACHE_DIR=/tmp/.uv-cache
 cat >> ~/.bashrc <<'EOF'
 
