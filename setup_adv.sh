@@ -35,14 +35,14 @@ cat >> ~/.bashrc <<'EOF'
 export UV_CACHE_DIR=/tmp/.uv-cache
 export PIP_CACHE_DIR=/tmp/.pip-cache
 export HF_HOME=/tmp/hf
-export TRANSFORMERS_CACHE=/tmp/hf
+export HF_HUB_ENABLE_HF_TRANSFER=1
 source /tmp/.venv/bin/activate
 EOF
 
-echo "[4/7] 실습 디렉토리 생성"
+echo "[4/7] lab 디렉토리 생성"
 cd /workspace
-mkdir -p 실습
-cd 실습
+mkdir -p lab
+cd lab
 
 echo "[5/7] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed
