@@ -76,6 +76,14 @@ cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 | UV_CACHE_DIR | `/tmp/.uv-cache` |
 | PIP_CACHE_DIR | `/tmp/.pip-cache` |
 | HF_HOME | `/tmp/hf` |
+
+## vLLM
+
+vLLM은 가상환경에 직접 설치하지 말고 `uvx`로 실행하세요.
+
+```bash
+uvx vllm serve <model_name>
+```
 AGENTSEOF
 
 echo "✅ 환경 설정 완료"
