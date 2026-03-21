@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-echo "[1/8] APT 업데이트 및 pciutils 설치"
+echo "[1/9] APT 업데이트 및 pciutils 설치"
 apt update && apt install -y pciutils
 
-echo "[2/8] nvidia-smi 검사"
+echo "[2/9] nvidia-smi 검사"
 if nvidia-smi | grep -q "ERR!"; then
     echo "GPU 오류 발생, 강사에게 문의해주세요!"
     exit 1
@@ -21,7 +21,7 @@ if [ "$CUDA_MAJOR" -lt 12 ] || { [ "$CUDA_MAJOR" -eq 12 ] && [ "$CUDA_MINOR" -lt
 fi
 echo "CUDA 버전 확인 완료: $CUDA_VERSION"
 
-echo "[3/8] uv 설치"
+echo "[3/9] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh
 if [ -f "$HOME/.local/bin/env" ]; then
     source "$HOME/.local/bin/env"
@@ -41,29 +41,48 @@ export OLLAMA_KEEP_ALIVE=1200
 source /tmp/.venv/bin/activate
 EOF
 
-echo "[4/8] lab 디렉토리 생성"
+echo "[4/9] lab 디렉토리 생성"
 cd /workspace
 mkdir -p lab
 cd lab
 
-echo "[5/8] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
+echo "[5/9] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/8] requirements 파일 다운로드 및 패키지 설치"
+echo "[6/9] requirements 파일 다운로드 및 패키지 설치"
 wget -O requirements.txt \
 https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_PEFT.txt
 uv pip compile requirements.txt -o requirements-lock.txt
 uv pip install -r requirements-lock.txt
 
-echo "[7/8] Jupyter 커널 등록"
+echo "[7/9] Jupyter 커널 등록"
 uv pip install ipykernel
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab"
 
-echo "[8/8] Ollama 설치"
+echo "[8/9] Ollama 설치"
 curl -fsSL https://ollama.com/install.sh | sh
 
+
+echo "[9/9] AGENTS.md 생성"
+cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
+# Environment Context
+
+- **가상환경**: `/tmp/.venv` (심볼릭 링크: `/workspace/lab/.venv`)
+- **Jupyter 커널명**: `NotoLab`
+
+## 캐시 경로 규칙
+
+`/workspace`는 FUSE 네트워크 스토리지이므로 대량 I/O를 피해야 합니다.
+캐시는 반드시 로컬 디스크(`/tmp`)를 사용하세요.
+
+| 환경변수 | 경로 |
+|----------|------|
+| UV_CACHE_DIR | `/tmp/.uv-cache` |
+| PIP_CACHE_DIR | `/tmp/.pip-cache` |
+| HF_HOME | `/tmp/hf` |
+AGENTSEOF
 
 echo "✅ 환경 설정 완료"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
