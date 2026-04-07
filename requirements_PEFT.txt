@@ -48,6 +48,7 @@ ninja
 packaging
 dotenv
 jsonlines
+kernels
 
 # 분석·시각화
 tensorboard

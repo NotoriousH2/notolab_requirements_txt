@@ -1,8 +1,8 @@
 # PyTorch CUDA 12.8 빌드 지정
 --index-url https://download.pytorch.org/whl/cu128
-torch==2.8.0
-torchvision==0.23.0
-torchaudio==2.8.0
+torch==2.11.0
+torchvision
+torchaudio
 
 # 나머지 패키지들은 PyPI에서 설치
 --extra-index-url https://pypi.org/simple
@@ -16,26 +16,31 @@ langchain
 langchain_core
 langchain_community
 langchain_google_genai
+langchain_ollama
 langchain_openai
 langchain_huggingface
 langchain_tavily
 langgraph
+langchain-docling
 
 # RAG
 sentence_transformers
 langchain_chroma
-kiwipiepy
+langchain_qdrant
+ragas==0.4.0
+sacrebleu
+rank_bm25
+kiwipiepy==0.19.1
 
 
 # 기타 AI/ML 유틸리티
-tavily-python
 peft
 accelerate
 datasets
 huggingface_hub
-trl
 hf_transfer
-transformers==4.57.3
+trl
+transformers>=5.5
 bitsandbytes
 
 # 지원 패키지
@@ -56,3 +61,5 @@ rich
 # 데이터 처리
 pymupdf
 
+#ipython
+ipywidgets
