@@ -9,18 +9,6 @@ if nvidia-smi | grep -q "ERR!"; then
     echo "GPU 오류 발생, 강사에게 문의해주세요!"
     exit 1
 fi
-
-# CUDA 버전 검사 (12.8 이상 필요)
-CUDA_VERSION=$(nvidia-smi | grep "CUDA Version" | awk '{print $9}')
-CUDA_MAJOR=$(echo "$CUDA_VERSION" | cut -d. -f1)
-CUDA_MINOR=$(echo "$CUDA_VERSION" | cut -d. -f2)
-
-if [ "$CUDA_MAJOR" -lt 12 ] || { [ "$CUDA_MAJOR" -eq 12 ] && [ "$CUDA_MINOR" -lt 8 ]; }; then
-    echo "CUDA 버전이 12.8 미만입니다 (현재: $CUDA_VERSION). 강사에게 문의해주세요!"
-    exit 1
-fi
-echo "CUDA 버전 확인 완료: $CUDA_VERSION"
-
 echo "[3/8] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh
 if [ -f "$HOME/.local/bin/env" ]; then
