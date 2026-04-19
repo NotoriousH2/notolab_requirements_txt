@@ -35,7 +35,7 @@ datasets
 huggingface_hub
 trl
 hf_transfer
-transformers==4.57.3
+transformers==5.5.0
 bitsandbytes
 
 # 지원 패키지
