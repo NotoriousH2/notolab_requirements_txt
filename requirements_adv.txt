@@ -39,6 +39,7 @@ transformers==5.5.0
 bitsandbytes
 
 # 지원 패키지
+setuptools<82.0
 ninja
 packaging
 dotenv
