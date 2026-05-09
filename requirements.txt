@@ -60,3 +60,5 @@ pymupdf
 
 #ipython
 ipywidgets
+ipykernel
+jupyterlab
