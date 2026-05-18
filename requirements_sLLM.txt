@@ -39,8 +39,8 @@ accelerate
 datasets
 huggingface_hub
 hf_transfer
-trl
-transformers==5.5.0
+trl==1.4.0
+transformers==5.8.1
 bitsandbytes
 
 # 지원 패키지
