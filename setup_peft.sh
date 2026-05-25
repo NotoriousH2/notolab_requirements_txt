@@ -82,3 +82,7 @@ AGENTSEOF
 
 echo "✅ 환경 설정 완료"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
+
+# NotoLab aliases
+grep -qxF "alias lab='cd /workspace/lab'" "$HOME/.bashrc" || echo "alias lab='cd /workspace/lab'" >> "$HOME/.bashrc"
+grep -qxF "alias gpu='watch -d -n 1 nvidia-smi'" "$HOME/.bashrc" || echo "alias gpu='watch -d -n 1 nvidia-smi'" >> "$HOME/.bashrc"
