@@ -39,7 +39,7 @@ accelerate
 datasets
 huggingface_hub
 hf_transfer
-trl==1.4.0
+trl==1.5.1
 transformers==5.8.1
 bitsandbytes
 
@@ -49,7 +49,7 @@ ninja
 packaging
 dotenv
 jsonlines
-kernels
+kernels==0.12.0
 
 # 분석·시각화
 tensorboard
