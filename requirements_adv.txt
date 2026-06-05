@@ -14,7 +14,7 @@ tiktoken
 # LangChain 계열
 langchain
 langchain_core
-langchain_community
+langchain_community<0.4.2
 langchain_google_genai
 langchain_openai
 langchain_huggingface
@@ -45,6 +45,7 @@ packaging
 dotenv
 jsonlines
 kernels==0.12.0
+tzdata
 
 # 분석·시각화
 tensorboard
