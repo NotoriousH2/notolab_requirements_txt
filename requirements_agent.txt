@@ -1,0 +1,84 @@
+# PyTorch CUDA 12.8 빌드 지정
+--index-url https://download.pytorch.org/whl/cu128
+torch==2.10.0
+torchvision==0.25.0
+torchaudio==2.10.0
+
+# 나머지 패키지들은 PyPI에서 설치
+--extra-index-url https://pypi.org/simple
+
+# OpenAI
+openai
+tiktoken
+
+# LangChain 계열
+langchain
+langchain_core
+langchain_community<0.4.2
+langchain_google_genai
+langchain_ollama
+langchain_openai
+langchain_huggingface
+langchain_tavily
+langgraph
+langgraph-checkpoint-sqlite
+langsmith
+langchain-docling
+
+# MCP
+fastmcp
+langchain-mcp-adapters
+
+# 관측·트레이싱
+langfuse
+
+# Slack 연동
+slack_sdk
+slack_bolt
+
+# RAG
+sentence_transformers
+langchain_chroma
+langchain_qdrant
+ragas==0.4.0
+sacrebleu
+rank_bm25
+kiwipiepy==0.19.1
+
+
+# 기타 AI/ML 유틸리티
+peft
+accelerate
+datasets
+huggingface_hub
+hf_transfer
+trl==1.5.1
+transformers==5.8.1
+bitsandbytes
+
+# 지원 패키지
+setuptools<82.0
+ninja
+packaging
+dotenv
+jsonlines
+kernels==0.12.0
+tzdata
+
+# 분석·시각화
+tensorboard
+seaborn
+matplotlib
+koreanize_matplotlib
+pandas
+
+# 콘솔 출력 포맷팅
+rich
+
+# 데이터 처리
+pymupdf
+bs4
+
+#ipython
+ipykernel
+ipywidgets
