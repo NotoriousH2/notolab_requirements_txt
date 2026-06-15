@@ -27,7 +27,9 @@ source /tmp/.venv/bin/activate
 | requirements_sLLM.txt | 소형 LLM 과정 | 12.8 (cu128) |
 | requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 12.8 (cu128) |
 
-## 참고 사항
+## 참고 사항 (RunPod/NotoLab 환경 한정)
+
+아래 내용은 RunPod 기반 NotoLab 컨테이너에서 불러올 때 기준이며, 일반 로컬 세팅에는 해당하지 않습니다.
 
 setup 스크립트는 로컬 파일이 아니라 GitHub main 브랜치의 매니페스트를 내려받아 설치합니다. requirements 파일 수정은 main 에 푸시된 뒤에야 수강생 환경에 반영됩니다.
 
