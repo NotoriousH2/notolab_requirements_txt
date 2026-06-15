@@ -36,6 +36,30 @@ source /tmp/.venv/bin/activate
 | requirements_sLLM.txt | 소형 LLM 과정 | 12.8 (cu128) |
 | requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 12.8 (cu128) |
 
+## vLLM 실행 예시
+
+vLLM 은 가상환경에 설치하지 않고 `uvx` 로 실행합니다. 버전별 예시는 다음과 같습니다.
+
+vLLM 0.19.1:
+
+```bash
+uvx --python 3.12 --from vllm==0.19.1 vllm serve ./outputs/models/Qwen3.5-9B \
+  --max-model-len 16384 \
+  --gpu-memory-utilization 0.5 \
+  --reasoning-parser qwen3 \
+  --language-model-only \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":2}'
+```
+
+vLLM 0.17.1 (`fastapi==0.115.12` 함께 설치):
+
+```bash
+uvx --python 3.12 --from vllm==0.17.1 --with fastapi==0.115.12 vllm serve ./Qwen3-30B-A3B-Instruct-2507-AWQ-4bit \
+  --dtype auto \
+  --gpu_memory_utilization 0.5 \
+  --max_model_len 16384
+```
+
 ## 참고 사항 (RunPod/NotoLab 환경 한정)
 
 **아래 내용은 RunPod 기반 NotoLab 컨테이너에서 불러올 때 기준이며, 일반 로컬 세팅에는 해당하지 않습니다.**
