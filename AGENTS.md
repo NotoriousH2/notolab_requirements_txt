@@ -4,20 +4,22 @@
 
 This repository maintains Python dependency manifests and NotoLab setup scripts. There is no application source tree, test suite, or bundled asset directory.
 
-- `requirements.txt`: default dependency set, currently using the PyTorch CUDA 13.0 index.
+- `requirements.txt`: default dependency set, currently using the PyTorch CUDA 13.0 index. Every other variant uses the CUDA 12.8 index.
 - `requirements_adv.txt`: advanced environment dependency set.
 - `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support.
 - `requirements_sLLM.txt`: small-LLM environment, including pinned `trl` and `transformers`.
-- `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, and write runtime guidance.
+- `requirements_agent.txt`: agent course environment (MCP, Slack, tracing/observability, browser tooling).
+- `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the `main` branch on GitHub at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` is the only variant that does not install Ollama.
 
 ## Build, Test, and Development Commands
 
 Use a Linux shell for setup scripts; they call `apt-get`, `curl`, `wget`, and `nvidia-smi`.
 
 ```bash
-bash setup_adv.sh        # provision the advanced environment
+bash setup_adv.sh        # provision the advanced environment (no Ollama)
 bash setup_peft.sh       # provision PEFT dependencies and Ollama
 bash setup_sllm.sh       # provision small-LLM dependencies and Ollama
+bash setup_agent.sh      # provision agent-course dependencies, chromium, and Ollama
 uv pip compile requirements_sLLM.txt -o requirements-lock.txt
 ```
 
@@ -39,7 +41,7 @@ Shell scripts should remain Bash-compatible, start with `#!/usr/bin/env bash` an
 There is no automated test framework. Validate changes with syntax and dependency-resolution checks:
 
 ```bash
-bash -n setup_adv.sh setup_peft.sh setup_sllm.sh
+bash -n setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh
 uv pip compile requirements.txt -o requirements-lock.txt
 python -c "import torch, transformers; print(torch.__version__)"
 ```
