@@ -1,5 +1,7 @@
 # NotoLab Requirements
 
+Last Updated : 2026-06-15
+
 NotoLab 강의 수강생을 위한 실습 환경 설치 파일 모음입니다. NotoLab 컨테이너에서 스크립트 한 줄로 과정에 맞는 Python 환경을 동일하게 구성합니다.
 
 ## 시작하기
