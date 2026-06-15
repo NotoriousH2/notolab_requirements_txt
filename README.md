@@ -2,6 +2,13 @@
 
 NotoLab 강의 수강생을 위한 실습 환경 설치 파일 모음입니다. NotoLab 컨테이너에서 스크립트 한 줄로 과정에 맞는 Python 환경을 동일하게 구성합니다.
 
+## 시작하기
+
+수업에서는 RunPod 템플릿으로 NotoLab 컨테이너를 띄웁니다.
+
+- 수업용 RunPod 템플릿: https://console.runpod.io/deploy?template=lom3sqxgoc&ref=88shxnpk
+- RunPod 가입: https://runpod.io?ref=88shxnpk
+
 ## 사용 방법
 
 NotoLab 컨테이너에서 과정에 맞는 스크립트를 실행한 뒤 가상환경을 활성화합니다.
