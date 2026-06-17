@@ -63,3 +63,4 @@ pymupdf
 ipywidgets
 ipykernel
 jupyterlab
+nbconvert

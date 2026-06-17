@@ -58,3 +58,6 @@ rich
 # 데이터 처리
 pymupdf
 
+# 노트북 변환
+nbconvert
+

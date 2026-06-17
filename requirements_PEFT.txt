@@ -65,3 +65,4 @@ pymupdf
 
 #ipython
 ipywidgets
+nbconvert
