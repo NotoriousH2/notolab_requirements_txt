@@ -1,16 +1,33 @@
 #!/usr/bin/env bash
 set -e
 
-echo "[1/10] APT 업데이트 및 pciutils, chromium 설치"
-apt-get update -qq && apt-get install -y -qq pciutils chromium-browser > /dev/null 2>&1 \
-    || apt-get install -y -qq pciutils chromium > /dev/null 2>&1
+# 다른 프로세스(Claude Code 배치 설치 등)가 apt를 점유 중이면 즉시 실패하지 말고
+# 최대 120초 dpkg 락을 대기한다. 이 스크립트의 모든 apt(nodesource/playwright 내부 호출 포함)에 적용된다.
+mkdir -p /etc/apt/apt.conf.d && echo 'DPkg::Lock::Timeout "120";' > /etc/apt/apt.conf.d/99lock-timeout
 
-echo "[2/10] nvidia-smi 검사"
+echo "[1/9] nvidia-smi 검사"
 if nvidia-smi 2>/dev/null | grep -q "ERR!"; then
     echo "GPU 오류 발생, 강사에게 문의해주세요!"
     exit 1
 fi
-echo "[3/10] uv 설치"
+
+echo "[2/9] APT 일괄 설치 (pciutils, chromium, Node.js, Playwright Chrome)"
+# ⚠️ 이 스크립트의 apt 작업은 전부 이 단계에 모은다.
+#    이후 단계(uv/venv/requirements/ollama)는 apt를 쓰지 않으므로,
+#    "✅ APT 완료" 마커 이후에는 Claude Code 배치 설치(apt 사용)를
+#    병렬로 돌려도 dpkg 락 충돌이 없다.
+apt-get update -qq && apt-get install -y -qq pciutils chromium-browser > /dev/null 2>&1 \
+    || apt-get install -y -qq pciutils chromium > /dev/null 2>&1
+if ! command -v node > /dev/null 2>&1; then
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null 2>&1
+    apt-get install -y -qq nodejs > /dev/null 2>&1
+fi
+# Playwright MCP의 기본 채널은 chrome이며, apt로 설치한 chromium은 인식하지 않는다.
+# chrome 채널은 --with-deps가 내부적으로 apt(google-chrome-stable + libs)를 쓰므로 이 블록에 둔다.
+npx -y playwright install --with-deps chrome > /dev/null 2>&1
+echo "✅ APT 완료 — 이후 단계는 apt 미사용 (Claude Code 병렬 설치 시작 가능)"
+
+echo "[3/9] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh > /dev/null 2>&1
 if [ -f "$HOME/.local/bin/env" ]; then
     source "$HOME/.local/bin/env"
@@ -30,38 +47,30 @@ export OLLAMA_KEEP_ALIVE=1200
 source /tmp/.venv/bin/activate
 EOF
 
-echo "[4/10] lab 디렉토리 생성"
+echo "[4/9] lab 디렉토리 생성"
 cd /workspace
 mkdir -p lab
 cd lab
 
-echo "[5/10] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
+echo "[5/9] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/10] requirements 파일 다운로드 및 패키지 설치"
+echo "[6/9] requirements 파일 다운로드 및 패키지 설치"
 wget -qO requirements.txt \
 https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_agent.txt
 uv pip compile requirements.txt -o requirements-lock.txt -q
 uv pip install -r requirements-lock.txt -q
 
-echo "[7/10] Jupyter 커널 등록"
+echo "[7/9] Jupyter 커널 등록"
 uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
-echo "[8/10] Ollama 설치"
+echo "[8/9] Ollama 설치"
 curl -fsSL https://ollama.com/install.sh | sh > /dev/null 2>&1
 
-echo "[9/10] Node.js 및 Playwright Chrome 설치 (Playwright MCP용)"
-if ! command -v node > /dev/null 2>&1; then
-    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null 2>&1
-    apt-get install -y -qq nodejs > /dev/null 2>&1
-fi
-# Playwright MCP의 기본 채널은 chrome이며, apt로 설치한 chromium은 인식하지 않는다.
-npx -y playwright install --with-deps chrome > /dev/null 2>&1
-
-echo "[10/10] AGENTS.md 생성"
+echo "[9/9] AGENTS.md 생성"
 cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 # Environment Context
 
