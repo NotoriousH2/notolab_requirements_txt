@@ -4,10 +4,9 @@
 
 This repository maintains Python dependency manifests and NotoLab setup scripts. There is no application source tree, test suite, or bundled asset directory.
 
-- `requirements.txt`: default dependency set, currently using the PyTorch CUDA 13.0 index. Every other variant uses the CUDA 12.8 index.
-- `requirements_adv.txt`: advanced environment dependency set.
-- `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support.
-- `requirements_sLLM.txt`: small-LLM environment, including pinned `trl` and `transformers`.
+- `requirements_adv.txt`: advanced environment dependency set, using the PyTorch CUDA 13.0 index.
+- `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support, using the PyTorch CUDA 13.0 index.
+- `requirements_sLLM.txt`: small-LLM environment, using the PyTorch CUDA 13.0 index and including pinned `trl` and `transformers`.
 - `requirements_agent.txt`: agent course environment (MCP, Slack, tracing/observability, browser tooling).
 - `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the `main` branch on GitHub at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` is the only variant that does not install Ollama.
 
@@ -20,19 +19,21 @@ bash setup_adv.sh        # provision the advanced environment (no Ollama)
 bash setup_peft.sh       # provision PEFT dependencies and Ollama
 bash setup_sllm.sh       # provision small-LLM dependencies and Ollama
 bash setup_agent.sh      # provision agent-course dependencies, chromium, and Ollama
-uv pip compile requirements_sLLM.txt -o requirements-lock.txt
+uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock.txt
 ```
 
 For local dependency checks, create a temporary virtual environment and install the target manifest:
 
 ```bash
 uv venv .venv
-uv pip install -r requirements.txt
+uv pip install -r requirements_sLLM.txt --index-strategy unsafe-best-match
 ```
+
+`--index-strategy unsafe-best-match` is required on both compile and install: inside a requirements file `--extra-index-url https://pypi.org/simple` outranks the `--index-url` PyTorch index, so without it torch is pulled from PyPI's default wheel instead of the pinned `cu130` build, and `torch==2.11.0+cu130` in a lock file fails to resolve outright.
 
 ## Coding Style & Naming Conventions
 
-Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.8.1` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file.
+Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.14.1` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file.
 
 Shell scripts should remain Bash-compatible, start with `#!/usr/bin/env bash` and `set -e`, and keep environment variables near the virtual environment setup.
 
@@ -42,7 +43,7 @@ There is no automated test framework. Validate changes with syntax and dependenc
 
 ```bash
 bash -n setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh
-uv pip compile requirements.txt -o requirements-lock.txt
+uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock.txt
 python -c "import torch, transformers; print(torch.__version__)"
 ```
 

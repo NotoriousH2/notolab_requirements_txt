@@ -1,6 +1,6 @@
 # NotoLab Requirements
 
-Last Updated : 2026-06-15
+Last Updated : 2026-08-08
 
 NotoLab 강의 수강생을 위한 실습 환경 설치 파일 모음입니다. NotoLab 컨테이너에서 스크립트 한 줄로 과정에 맞는 Python 환경을 동일하게 구성합니다.
 
@@ -30,15 +30,20 @@ source /tmp/.venv/bin/activate
 
 | 패키지 목록 파일 | 용도 | CUDA |
 |------------|------|------|
-| requirements.txt | 기본 환경 | 13.0 (cu130) |
-| requirements_adv.txt | 심화 과정 | 12.8 (cu128) |
-| requirements_PEFT.txt | PEFT 과정 | 12.8 (cu128) |
-| requirements_sLLM.txt | 소형 LLM 과정 | 12.8 (cu128) |
-| requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 12.8 (cu128) |
+| requirements_adv.txt | 심화 과정 | 13.0 (cu130) |
+| requirements_PEFT.txt | PEFT 과정 | 13.0 (cu130) |
+| requirements_sLLM.txt | 소형 LLM 과정 | 13.0 (cu130) |
+| requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 해당 없음 (PyTorch 미설치) |
 
 ## vLLM 실행 예시
 
-vLLM 은 가상환경에 설치하지 않고 `uvx` 로 실행합니다. 버전별 예시는 다음과 같습니다.
+심화 / PEFT / 소형 LLM 과정은 `vllm==0.24.0` 이 가상환경에 함께 설치됩니다.
+
+```bash
+vllm serve <model_name>
+```
+
+다른 버전으로 서빙해야 하면 가상환경에 설치하지 말고 `uvx` 로 실행합니다. 버전별 예시는 다음과 같습니다.
 
 vLLM 0.19.1:
 
@@ -66,6 +71,6 @@ uvx --python 3.12 --from vllm==0.17.1 --with fastapi==0.115.12 vllm serve ./Qwen
 
 setup 스크립트는 로컬 파일이 아니라 GitHub main 브랜치의 패키지 목록 파일을 내려받아 설치합니다. requirements 파일 수정은 main 에 푸시된 뒤에야 수강생 환경에 반영됩니다.
 
-캐시와 가상환경은 모두 로컬 디스크 /tmp 에 둡니다. /workspace 는 FUSE 네트워크 스토리지라 대량 I/O 가 느립니다. vLLM 은 가상환경에 설치하지 않고 uvx vllm serve 로 실행합니다.
+캐시와 가상환경은 모두 로컬 디스크 /tmp 에 둡니다. /workspace 는 FUSE 네트워크 스토리지라 대량 I/O 가 느립니다. 기본 서빙 버전인 vLLM 0.24.0 은 가상환경에 설치되며, 그 외 버전은 uvx 로 실행합니다.
 
 자세한 규칙은 AGENTS.md 를 참고하세요.

@@ -42,8 +42,11 @@ source /tmp/.venv/bin/activate
 echo "[6/9] requirements 파일 다운로드 및 패키지 설치"
 wget -qO requirements.txt \
 https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_sLLM.txt
-uv pip compile requirements.txt -o requirements-lock.txt -q
-uv pip install -r requirements-lock.txt -q
+uv pip compile requirements.txt \
+    --index-strategy unsafe-best-match \
+    --emit-index-url \
+    -o requirements-lock.txt -q
+uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
 
 echo "[7/9] Jupyter 커널 등록"
 uv pip install ipykernel -q
@@ -73,10 +76,16 @@ cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 
 ## vLLM
 
-vLLM은 가상환경에 직접 설치하지 말고 `uvx`로 실행하세요.
+vLLM 0.24.0이 가상환경에 설치되어 있습니다.
 
 ```bash
-uvx vllm serve <model_name>
+vllm serve <model_name>
+```
+
+다른 버전으로 서빙해야 하면 가상환경에 설치하지 말고 `uvx`로 실행하세요.
+
+```bash
+uvx --python 3.12 --from vllm==<version> vllm serve <model_name>
 ```
 AGENTSEOF
 
