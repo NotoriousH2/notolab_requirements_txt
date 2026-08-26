@@ -25,6 +25,7 @@ langgraph
 sentence_transformers
 langchain_chroma
 kiwipiepy
+lightrag-hku[api]
 
 
 # 기타 AI/ML 유틸리티
