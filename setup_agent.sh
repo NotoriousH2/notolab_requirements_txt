@@ -127,6 +127,18 @@ llama-server -hf <저장소>:<양자화> --alias <이름> --port 8080 -c 32768 -
 GGUF는 `HF_HOME`(`/tmp/hf/hub`)에 캐시됩니다. 받아둔 모델은 `llama-server --cache-list`로 확인합니다.
 배포 바이너리는 Compute Capability 8.6 이상 전용입니다.
 
+## Ollama
+
+컨테이너에 systemd가 없으므로 데몬은 직접 띄워야 합니다.
+
+```bash
+ollama serve &
+ollama pull <모델>
+```
+
+OpenAI 호환 엔드포인트는 `http://localhost:11434/v1` 입니다.
+컨텍스트 길이 16384, 모델 유지 시간 1200초가 `~/.bashrc`에 설정되어 있습니다.
+
 ## vLLM
 
 vLLM은 가상환경에 직접 설치하지 말고 `uvx`로 실행하세요.
