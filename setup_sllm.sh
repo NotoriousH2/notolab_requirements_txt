@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-echo "[1/9] APT 업데이트 및 pciutils 설치"
+echo "[1/10] APT 업데이트 및 pciutils 설치"
 apt-get update -qq && apt-get install -y -qq pciutils > /dev/null
 
-echo "[2/9] nvidia-smi 검사"
+echo "[2/10] nvidia-smi 검사"
 if nvidia-smi 2>/dev/null | grep -q "ERR!"; then
     echo "GPU 오류 발생, 강사에게 문의해주세요!"
     exit 1
 fi
-echo "[3/9] uv 설치"
+echo "[3/10] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh > /dev/null 2>&1
 if [ -f "$HOME/.local/bin/env" ]; then
     source "$HOME/.local/bin/env"
@@ -24,20 +24,22 @@ export UV_CACHE_DIR=/tmp/.uv-cache
 export PIP_CACHE_DIR=/tmp/.pip-cache
 export HF_HOME=/tmp/hf
 export HF_HUB_ENABLE_HF_TRANSFER=1
+export OLLAMA_CONTEXT_LENGTH=16384
+export OLLAMA_KEEP_ALIVE=1200
 source /tmp/.venv/bin/activate
 EOF
 
-echo "[4/9] lab 디렉토리 생성"
+echo "[4/10] lab 디렉토리 생성"
 cd /workspace
 mkdir -p lab
 cd lab
 
-echo "[5/9] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
+echo "[5/10] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/9] requirements 파일 다운로드 및 패키지 설치"
+echo "[6/10] requirements 파일 다운로드 및 패키지 설치"
 wget -qO requirements.txt \
 https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_sLLM.txt
 uv pip compile requirements.txt \
@@ -46,11 +48,11 @@ uv pip compile requirements.txt \
     -o requirements-lock.txt -q
 uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
 
-echo "[7/9] Jupyter 커널 등록"
+echo "[7/10] Jupyter 커널 등록"
 uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
-echo "[8/9] llama.cpp 설치"
+echo "[8/10] llama.cpp 설치"
 LLAMACPP_URL="https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
 LLAMACPP_MANUAL=0
@@ -79,7 +81,10 @@ else
 fi
 
 
-echo "[9/9] AGENTS.md 생성"
+echo "[9/10] Ollama 설치 (기존 강의자료 호환용)"
+curl -fsSL https://ollama.com/install.sh | sh > /dev/null 2>&1
+
+echo "[10/10] AGENTS.md 생성"
 cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 # Environment Context
 
@@ -107,6 +112,19 @@ llama-server -hf <저장소>:<양자화> --alias <이름> --port 8080 -c 32768 -
 
 GGUF는 `HF_HOME`(`/tmp/hf/hub`)에 캐시됩니다. 받아둔 모델은 `llama-server --cache-list`로 확인합니다.
 배포 바이너리는 Compute Capability 8.6 이상 전용입니다.
+
+## Ollama
+
+기존 강의자료 호환용으로 함께 설치되어 있습니다. 새로 만드는 실습은 위의 `llama-server`를 사용하세요.
+컨테이너에 systemd가 없으므로 데몬은 직접 띄워야 합니다.
+
+```bash
+ollama serve &
+ollama pull <모델>
+```
+
+OpenAI 호환 엔드포인트는 `http://localhost:11434/v1` 입니다.
+컨텍스트 길이 16384, 모델 유지 시간 1200초가 `~/.bashrc`에 설정되어 있습니다.
 
 ## vLLM
 
