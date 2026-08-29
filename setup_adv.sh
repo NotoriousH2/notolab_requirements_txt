@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+# 이 스크립트가 참조할 저장소 버전(태그/브랜치).
+# 릴리스로 배포된 사본에는 수업 시점 태그가 박혀 있고, main 사본은 최신을 따라간다.
+# 다른 버전으로 설치하려면: NOTOLAB_REF=<태그> bash setup_adv.sh
+NOTOLAB_REF="${NOTOLAB_REF:-main}"
+
 echo "[1/8] APT 업데이트 및 pciutils 설치"
 apt-get update -qq && apt-get install -y -qq pciutils > /dev/null
 
@@ -37,9 +42,9 @@ uv venv /tmp/.venv --seed -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/8] requirements 파일 다운로드 및 패키지 설치"
+echo "[6/8] requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
 wget -qO requirements.txt \
-https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_adv.txt
+"https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_adv.txt"
 uv pip compile requirements.txt \
     --index-strategy unsafe-best-match \
     --emit-index-url \
@@ -83,7 +88,7 @@ uvx --python 3.12 --from vllm==<version> vllm serve <model_name>
 ```
 AGENTSEOF
 
-echo "✅ 환경 설정 완료"
+echo "✅ 환경 설정 완료 (버전: $NOTOLAB_REF)"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
 
 # NotoLab aliases

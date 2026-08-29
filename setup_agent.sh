@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+# 이 스크립트가 참조할 저장소 버전(태그/브랜치).
+# 릴리스로 배포된 사본에는 수업 시점 태그가 박혀 있고, main 사본은 최신을 따라간다.
+# 다른 버전으로 설치하려면: NOTOLAB_REF=<태그> bash setup_agent.sh
+NOTOLAB_REF="${NOTOLAB_REF:-main}"
+
 # 다른 프로세스(Claude Code 배치 설치 등)가 apt를 점유 중이면 즉시 실패하지 말고
 # 최대 120초 dpkg 락을 대기한다. 이 스크립트의 모든 apt(nodesource/playwright 내부 호출 포함)에 적용된다.
 mkdir -p /etc/apt/apt.conf.d && echo 'DPkg::Lock::Timeout "120";' > /etc/apt/apt.conf.d/99lock-timeout
@@ -57,9 +62,9 @@ uv venv /tmp/.venv --seed -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/10] requirements 파일 다운로드 및 패키지 설치"
+echo "[6/10] requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
 wget -qO requirements.txt \
-https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/requirements_agent.txt
+"https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_agent.txt"
 uv pip compile requirements.txt -o requirements-lock.txt -q
 uv pip install -r requirements-lock.txt -q
 
@@ -160,7 +165,7 @@ npx @playwright/mcp@latest --headless --no-sandbox
 MCP 설정 JSON에 등록할 때도 `args`에 `--headless`, `--no-sandbox`를 동일하게 넣으세요.
 AGENTSEOF
 
-echo "✅ 환경 설정 완료"
+echo "✅ 환경 설정 완료 (버전: $NOTOLAB_REF)"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
 
 # NotoLab aliases
