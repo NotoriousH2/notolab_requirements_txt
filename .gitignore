@@ -2,3 +2,6 @@ CLAUDE.md
 
 # 빌드 아카이브는 저장소가 아니라 GitHub Release로 배포한다
 *.tar.gz
+
+# 로컬 작업 메모 (수강생에게 노출하지 않는다)
+TODO.md
