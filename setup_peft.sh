@@ -53,7 +53,7 @@ uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 echo "[8/10] llama.cpp 설치"
-LLAMACPP_URL="https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/main/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
+LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.3.0-cuda86/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
 LLAMACPP_MANUAL=0
 

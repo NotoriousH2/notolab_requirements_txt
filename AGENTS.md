@@ -8,7 +8,7 @@ This repository maintains Python dependency manifests and NotoLab setup scripts.
 - `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support, using the PyTorch CUDA 13.0 index.
 - `requirements_sLLM.txt`: small-LLM environment, using the PyTorch CUDA 13.0 index and including pinned `trl` and `transformers`.
 - `requirements_agent.txt`: agent course environment (MCP, Slack, tracing/observability, browser tooling).
-- `llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz`: prebuilt CUDA llama.cpp binaries (Compute Capability 8.6) that `setup_peft.sh`, `setup_sllm.sh`, and `setup_agent.sh` download from `main` at install time.
+- llama.cpp binaries are not stored in this repository. `setup_peft.sh`, `setup_sllm.sh`, and `setup_agent.sh` download `llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz` (prebuilt CUDA, Compute Capability 8.6) from the `llama-cpp-v0.3.0-cuda86` GitHub release at install time. Publish a new build with `gh release create <tag> <file>` rather than committing the archive.
 - `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the `main` branch on GitHub at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` is the only variant that installs neither Ollama nor llama.cpp and runs 8 steps; the other three install both and run 10 steps.
 
 ## Build, Test, and Development Commands

@@ -1,1 +1,4 @@
 CLAUDE.md
+
+# 빌드 아카이브는 저장소가 아니라 GitHub Release로 배포한다
+*.tar.gz
