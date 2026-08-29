@@ -95,7 +95,7 @@ else
     echo "  다운로드에 실패해 건너뜁니다."
 fi
 
-echo "[9/10] Ollama 설치"
+echo "[9/10] Ollama 설치 (기존 강의자료 호환용)"
 curl -fsSL https://ollama.com/install.sh | sh > /dev/null 2>&1
 
 echo "[10/10] AGENTS.md 생성"
@@ -129,6 +129,7 @@ GGUF는 `HF_HOME`(`/tmp/hf/hub`)에 캐시됩니다. 받아둔 모델은 `llama-
 
 ## Ollama
 
+기존 강의자료 호환용으로 함께 설치되어 있습니다. 새로 만드는 실습은 위의 `llama-server`를 사용하세요.
 컨테이너에 systemd가 없으므로 데몬은 직접 띄워야 합니다.
 
 ```bash
