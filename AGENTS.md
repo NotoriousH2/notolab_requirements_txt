@@ -8,8 +8,8 @@ This repository maintains Python dependency manifests and NotoLab setup scripts.
 - `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support, using the PyTorch CUDA 13.0 index.
 - `requirements_sLLM.txt`: small-LLM environment, using the PyTorch CUDA 13.0 index and including pinned `trl` and `transformers`.
 - `requirements_agent.txt`: agent course environment (MCP, Slack, tracing/observability, browser tooling).
-- `llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz`: prebuilt CUDA llama.cpp binaries (Compute Capability 8.6) that `setup_sllm.sh` downloads from `main` at install time.
-- `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the `main` branch on GitHub at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` is the only variant that does not install Ollama; `setup_sllm.sh` also installs the prebuilt llama.cpp tarball from this repository, so it runs 10 steps instead of 9.
+- `llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz`: prebuilt CUDA llama.cpp binaries (Compute Capability 8.6) that `setup_peft.sh`, `setup_sllm.sh`, and `setup_agent.sh` download from `main` at install time.
+- `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the `main` branch on GitHub at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` is the only variant that installs neither Ollama nor llama.cpp and runs 8 steps; the other three install both and run 10 steps.
 
 ## Build, Test, and Development Commands
 
@@ -17,9 +17,9 @@ Use a Linux shell for setup scripts; they call `apt-get`, `curl`, `wget`, and `n
 
 ```bash
 bash setup_adv.sh        # provision the advanced environment (no Ollama)
-bash setup_peft.sh       # provision PEFT dependencies and Ollama
+bash setup_peft.sh       # provision PEFT dependencies, llama.cpp, and Ollama
 bash setup_sllm.sh       # provision small-LLM dependencies, llama.cpp, and Ollama
-bash setup_agent.sh      # provision agent-course dependencies, chromium, and Ollama
+bash setup_agent.sh      # provision agent-course dependencies, chromium, llama.cpp, and Ollama
 uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock.txt
 ```
 
