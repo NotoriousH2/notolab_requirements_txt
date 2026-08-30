@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# 수업 시점 버전을 고정한 setup 스크립트를 GitHub Release로 배포한다.
+# 수업 시점 버전을 고정한 setup 스크립트와 lock 파일을 GitHub Release로 배포한다.
 #
 #   bash release.sh 2026-09
 #
+# 전제: locks/ 디렉터리에 GPU 컨테이너에서 **검증을 마친** lock 4개가 있어야 한다.
+#       여기서 lock을 새로 만들지 않는다. 검증하지 않은 lock을 배포하면
+#       버전 고정의 의미가 사라지기 때문이다. 만드는 방법은 TODO.md 참고.
+#
 # 만들어지는 것
 #   - 태그 <버전> (현재 origin/main 커밋)
-#   - 릴리스 에셋: setup_*.sh 4개 + requirements_*.txt 4개
-#     에셋으로 올라가는 setup_*.sh는 NOTOLAB_REF에 태그가 박힌 사본이라,
-#     수강생에게 그대로 전달하면 그 시점의 manifest를 받아 설치한다.
+#   - 릴리스 에셋: setup_*.sh 4개(NOTOLAB_REF에 태그가 박힌 사본)
+#                  + requirements_*.txt 4개 + requirements-lock-*.txt 4개
 set -e
 
 TAG="${1:-}"
@@ -17,8 +20,35 @@ if [ -z "$TAG" ]; then
 fi
 
 REPO="NotoriousH2/notolab_requirements_txt"
+LOCKDIR="${LOCKDIR:-locks}"
 SCRIPTS="setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh"
 MANIFESTS="requirements_adv.txt requirements_PEFT.txt requirements_sLLM.txt requirements_agent.txt"
+VARIANTS="adv PEFT sLLM agent"
+
+# manifest의 == 핀이 lock에 그대로 들어있는지 확인한다.
+# manifest를 고치고 lock을 다시 뽑지 않은 채 배포하는 사고를 막는 장치다.
+check_pins() {
+    awk '
+    function norm(s) { gsub(/_/, "-", s); return tolower(s) }
+    function pin(line,   n, v) {
+        sub(/[[:space:]].*$/, "", line)
+        if (line !~ /^[A-Za-z0-9._-]+==/) return 0
+        n = line; sub(/==.*/, "", n)
+        v = line; sub(/^[^=]*==/, "", v)
+        NAME = norm(n); VER = v
+        return 1
+    }
+    NR==FNR { if (pin($0)) have[NAME] = VER; next }
+    {
+        if (pin($0)) {
+            if (!(NAME in have))                       { printf "    누락: %s==%s\n", NAME, VER; bad++ }
+            else if (have[NAME] != VER &&
+                     index(have[NAME], VER "+") != 1)  { printf "    불일치: %s manifest=%s lock=%s\n", NAME, VER, have[NAME]; bad++ }
+        }
+    }
+    END { exit (bad > 0) }
+    ' "$2" "$1"
+}
 
 # 커밋되지 않은 변경은 태그에 담기지 않는다
 if [ -n "$(git status --porcelain -- $SCRIPTS $MANIFESTS)" ]; then
@@ -36,6 +66,32 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
     exit 1
 fi
 
+# lock 4개가 있고 manifest와 어긋나지 않는지 확인
+echo "lock 검사"
+FAIL=0
+for v in $VARIANTS; do
+    lock="$LOCKDIR/requirements-lock-$v.txt"
+    case "$v" in
+        adv)   manifest="requirements_adv.txt" ;;
+        PEFT)  manifest="requirements_PEFT.txt" ;;
+        sLLM)  manifest="requirements_sLLM.txt" ;;
+        agent) manifest="requirements_agent.txt" ;;
+    esac
+    if [ ! -f "$lock" ]; then
+        echo "  없음: $lock — GPU 컨테이너에서 만들어 가져오세요 (TODO.md 참고)" >&2
+        FAIL=1
+        continue
+    fi
+    if check_pins "$manifest" "$lock"; then
+        echo "  OK: $manifest -> $(basename "$lock")"
+    else
+        echo "  ★ $manifest 의 핀이 lock에 반영되지 않았습니다. lock을 다시 만들고 재검증하세요." >&2
+        FAIL=1
+    fi
+done
+[ "$FAIL" = "0" ] || exit 1
+
+# NOTOLAB_REF에 태그를 박은 스크립트 사본 생성
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 
@@ -52,7 +108,7 @@ gh release create "$TAG" -R "$REPO" \
 ## 수강생
 
 아래에서 과정에 맞는 \`setup_*.sh\`를 받아 NotoLab 컨테이너에서 실행하세요.
-이 스크립트들은 최신판이 아니라 **$TAG 시점의 패키지 목록**을 설치합니다.
+이 스크립트들은 최신판이 아니라 **$TAG 시점에 검증된 패키지 조합**을 설치합니다.
 
 \`\`\`bash
 bash setup_adv.sh        # 심화 과정
@@ -61,13 +117,31 @@ bash setup_sllm.sh       # 소형 LLM 과정
 bash setup_agent.sh      # 에이전트 과정
 \`\`\`
 
+설치 로그에 \`lock 사용: ...\` 이 찍히면 고정된 조합이 적용된 것입니다.
+
 ## 참고
 
 - 최신판을 쓰려면 저장소 \`main\`의 스크립트를 사용하세요.
-- 다른 버전으로 설치하려면 \`NOTOLAB_REF=<버전> bash setup_sllm.sh\` 형태로 덮어쓸 수 있습니다.
-- 설치 로그 첫머리와 마지막 줄에 적용된 버전이 표시됩니다." \
+- lock 설치가 깨지면 \`NOTOLAB_LOCK=0 bash setup_sllm.sh\` 로 최신 해석을 시도할 수 있습니다.
+- 다른 버전을 쓰려면 \`NOTOLAB_REF=<버전> bash setup_sllm.sh\`" \
     "$OUT"/setup_adv.sh "$OUT"/setup_peft.sh "$OUT"/setup_sllm.sh "$OUT"/setup_agent.sh \
-    $MANIFESTS
+    $MANIFESTS \
+    "$LOCKDIR"/requirements-lock-adv.txt "$LOCKDIR"/requirements-lock-PEFT.txt \
+    "$LOCKDIR"/requirements-lock-sLLM.txt "$LOCKDIR"/requirements-lock-agent.txt
+
+# 업로드 누락은 404 -> compile 폴백으로 조용히 넘어가므로 반드시 확인한다
+echo
+echo "에셋 확인"
+ASSETS="$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[].name')"
+for v in $VARIANTS; do
+    if echo "$ASSETS" | grep -qx "requirements-lock-$v.txt"; then
+        echo "  OK: requirements-lock-$v.txt"
+    else
+        echo "  ★ 누락: requirements-lock-$v.txt — 이대로 두면 학생 설치가 조용히 lock 없이 진행됩니다" >&2
+        FAIL=1
+    fi
+done
+[ "$FAIL" = "0" ] || exit 1
 
 echo
 echo "완료: https://github.com/$REPO/releases/tag/$TAG"
