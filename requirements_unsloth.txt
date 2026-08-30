@@ -42,5 +42,6 @@ rich
 pymupdf
 
 #ipython
+ipykernel
 ipywidgets
 nbconvert

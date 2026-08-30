@@ -85,7 +85,6 @@ uv venv /tmp/.venv-unsloth --seed -q
 ln -sfn /tmp/.venv-unsloth /workspace/lab/.venv-unsloth
 VIRTUAL_ENV=/tmp/.venv-unsloth uv pip install --python /tmp/.venv-unsloth/bin/python \
     -r requirements-lock-unsloth.txt --index-strategy unsafe-best-match -q
-uv pip install --python /tmp/.venv-unsloth/bin/python ipykernel -q
 /tmp/.venv-unsloth/bin/python -m ipykernel install \
     --name "NotoLab-Unsloth" --display-name "NotoLab (Unsloth)" > /dev/null 2>&1
 
