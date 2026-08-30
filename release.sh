@@ -25,25 +25,42 @@ SCRIPTS="setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh"
 MANIFESTS="requirements_adv.txt requirements_PEFT.txt requirements_sLLM.txt requirements_agent.txt requirements_unsloth.txt"
 VARIANTS="adv PEFT sLLM agent unsloth"
 
-# manifest의 == 핀이 lock에 그대로 들어있는지 확인한다.
+# manifest에 적힌 패키지가 lock에 전부 들어있고 == 핀이 일치하는지 확인한다.
 # manifest를 고치고 lock을 다시 뽑지 않은 채 배포하는 사고를 막는 장치다.
+# 이름 존재까지 보는 이유: 무핀 패키지(ipykernel 등)를 새로 추가하면
+# 핀 비교만으로는 lock이 낡았다는 걸 알 수 없기 때문이다.
 check_pins() {
     awk '
-    function norm(s) { gsub(/_/, "-", s); return tolower(s) }
-    function pin(line,   n, v) {
-        sub(/[[:space:]].*$/, "", line)
-        if (line !~ /^[A-Za-z0-9._-]+==/) return 0
-        n = line; sub(/==.*/, "", n)
-        v = line; sub(/^[^=]*==/, "", v)
-        NAME = norm(n); VER = v
-        return 1
+    # PEP 503 정규화: 대소문자 통일, - _ . 연속을 하나의 - 로 (discord.py -> discord-py)
+    function norm(s) { gsub(/[-_.]+/, "-", s); return tolower(s) }
+    NR==FNR {
+        line = $0; sub(/[[:space:]].*$/, "", line)
+        if (line ~ /^[A-Za-z0-9._-]+==/) {
+            n = line; sub(/==.*/, "", n)
+            v = line; sub(/^[^=]*==/, "", v)
+            have[norm(n)] = v
+        }
+        next
     }
-    NR==FNR { if (pin($0)) have[NAME] = VER; next }
     {
-        if (pin($0)) {
-            if (!(NAME in have))                       { printf "    누락: %s==%s\n", NAME, VER; bad++ }
-            else if (have[NAME] != VER &&
-                     index(have[NAME], VER "+") != 1)  { printf "    불일치: %s manifest=%s lock=%s\n", NAME, VER, have[NAME]; bad++ }
+        line = $0
+        sub(/#.*$/, "", line)
+        sub(/^[[:space:]]+/, "", line); sub(/[[:space:]]+$/, "", line)
+        if (line == "" || line ~ /^-/) next
+
+        name = line
+        sub(/;.*$/, "", name); sub(/\[.*$/, "", name); sub(/[=<>!~].*$/, "", name)
+        sub(/[[:space:]]+$/, "", name)
+        k = norm(name)
+
+        if (!(k in have)) { printf "    누락: %s (lock에 없음 — lock을 다시 뽑으세요)\n", name; bad++; next }
+
+        if (line ~ /==/) {
+            v = line; sub(/^[^=]*==/, "", v)
+            sub(/[;,].*$/, "", v); sub(/[[:space:]].*$/, "", v)
+            if (have[k] != v && index(have[k], v "+") != 1) {
+                printf "    불일치: %s manifest=%s lock=%s\n", name, v, have[k]; bad++
+            }
         }
     }
     END { exit (bad > 0) }

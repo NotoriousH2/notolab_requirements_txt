@@ -77,7 +77,6 @@ fi
 uv pip install -r requirements-lock.txt -q
 
 echo "[7/10] Jupyter 커널 등록"
-uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 echo "[8/10] llama.cpp 설치"

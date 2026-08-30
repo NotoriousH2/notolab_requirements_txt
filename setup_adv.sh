@@ -60,7 +60,6 @@ fi
 uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
 
 echo "[7/9] Jupyter 커널 등록"
-uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 echo "[8/9] unsloth 실습 환경 (별도 venv + 전용 커널)"
