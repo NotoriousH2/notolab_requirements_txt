@@ -6,15 +6,15 @@ set -e
 # 다른 버전으로 설치하려면: NOTOLAB_REF=<태그> bash setup_peft.sh
 NOTOLAB_REF="${NOTOLAB_REF:-main}"
 
-echo "[1/10] APT 업데이트 및 pciutils 설치"
+echo "[1/11] APT 업데이트 및 pciutils 설치"
 apt-get update -qq && apt-get install -y -qq pciutils > /dev/null
 
-echo "[2/10] nvidia-smi 검사"
+echo "[2/11] nvidia-smi 검사"
 if nvidia-smi 2>/dev/null | grep -q "ERR!"; then
     echo "GPU 오류 발생, 강사에게 문의해주세요!"
     exit 1
 fi
-echo "[3/10] uv 설치"
+echo "[3/11] uv 설치"
 curl -LsSf https://astral.sh/uv/0.10.3/install.sh | sh > /dev/null 2>&1
 if [ -f "$HOME/.local/bin/env" ]; then
     source "$HOME/.local/bin/env"
@@ -34,17 +34,17 @@ export OLLAMA_KEEP_ALIVE=1200
 source /tmp/.venv/bin/activate
 EOF
 
-echo "[4/10] lab 디렉토리 생성"
+echo "[4/11] lab 디렉토리 생성"
 cd /workspace
 mkdir -p lab
 cd lab
 
-echo "[5/10] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
+echo "[5/11] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
 uv venv /tmp/.venv --seed -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
-echo "[6/10] requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
+echo "[6/11] requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
 wget -qO requirements.txt \
 "https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_PEFT.txt"
 # 릴리스에 동봉된 lock이 있으면 그대로 설치해 수업 시점 환경을 재현한다.
@@ -61,11 +61,34 @@ else
 fi
 uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
 
-echo "[7/10] Jupyter 커널 등록"
+echo "[7/11] Jupyter 커널 등록"
 uv pip install ipykernel -q
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
-echo "[8/10] llama.cpp 설치"
+echo "[8/11] unsloth 실습 환경 (별도 venv + 전용 커널)"
+# unsloth는 transformers/trl을 자체 버전으로 끌어오므로 메인 venv에 넣을 수 없다.
+# 다만 torch/CUDA 계층은 [6]단계에서 uv 캐시에 들어와 있어 하드링크로 공유된다.
+# 그래서 이 단계는 반드시 [6]단계 뒤에 있어야 한다 — 앞에 두면 torch를 새로 받는다.
+wget -qO requirements_unsloth.txt \
+"https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_unsloth.txt"
+UNSLOTH_LOCK_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/$NOTOLAB_REF/requirements-lock-unsloth.txt"
+if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL "$UNSLOTH_LOCK_URL" -o requirements-lock-unsloth.txt 2>/dev/null; then
+    echo "  lock 사용: requirements-lock-unsloth.txt ($NOTOLAB_REF)"
+else
+    echo "  lock 없음 — manifest에서 해석"
+    uv pip compile requirements_unsloth.txt \
+        --index-strategy unsafe-best-match \
+        --emit-index-url \
+        -o requirements-lock-unsloth.txt -q
+fi
+uv venv /tmp/.venv-unsloth --seed -q
+ln -sfn /tmp/.venv-unsloth /workspace/lab/.venv-unsloth
+VIRTUAL_ENV=/tmp/.venv-unsloth uv pip install --python /tmp/.venv-unsloth/bin/python \
+    -r requirements-lock-unsloth.txt --index-strategy unsafe-best-match -q
+/tmp/.venv-unsloth/bin/python -m ipykernel install \
+    --name "NotoLab-Unsloth" --display-name "NotoLab (Unsloth)" > /dev/null 2>&1
+
+echo "[9/11] llama.cpp 설치"
 LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.3.0-cuda86/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
 LLAMACPP_MANUAL=0
@@ -93,11 +116,11 @@ else
     echo "  다운로드에 실패해 건너뜁니다."
 fi
 
-echo "[9/10] Ollama 설치 (기존 강의자료 호환용)"
+echo "[10/11] Ollama 설치 (기존 강의자료 호환용)"
 curl -fsSL https://ollama.com/install.sh | sh > /dev/null 2>&1
 
 
-echo "[10/10] AGENTS.md 생성"
+echo "[11/11] AGENTS.md 생성"
 cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 # Environment Context
 
@@ -114,6 +137,17 @@ cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 | UV_CACHE_DIR | `/tmp/.uv-cache` |
 | PIP_CACHE_DIR | `/tmp/.pip-cache` |
 | HF_HOME | `/tmp/hf` |
+
+## unsloth
+
+unsloth 실습은 별도 환경을 씁니다. transformers/trl 버전이 메인 환경과 달라 같은
+가상환경에 넣을 수 없습니다.
+
+- 가상환경: `/tmp/.venv-unsloth` (심볼릭 링크: `/workspace/lab/.venv-unsloth`)
+- Jupyter 커널: `NotoLab (Unsloth)`
+
+노트북에서 커널을 `NotoLab (Unsloth)`로 바꿔 사용하세요.
+터미널에서는 `source /tmp/.venv-unsloth/bin/activate`.
 
 ## llama.cpp
 

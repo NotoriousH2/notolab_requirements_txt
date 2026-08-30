@@ -26,6 +26,8 @@ source /tmp/.venv/bin/activate
 
 스크립트는 GPU 상태 확인, uv 설치, /tmp/.venv 가상환경 생성, 패키지 설치, NotoLab Jupyter 커널 등록을 수행합니다.
 
+심화 / PEFT / 소형 LLM 과정은 unsloth 실습용 환경을 하나 더 만듭니다. unsloth는 transformers/trl 버전이 메인 환경과 달라 같은 가상환경에 넣을 수 없기 때문입니다. 노트북에서 커널을 `NotoLab (Unsloth)`로 바꾸면 됩니다.
+
 ## 버전 고정 (수업 시점 환경 재현)
 
 `main`의 스크립트는 항상 최신 패키지 목록을 설치합니다. 수업에서 쓰던 환경을 나중에 다시 만들려면 릴리스에서 받은 스크립트를 사용하세요.
@@ -56,6 +58,7 @@ bash release.sh 2026-09
 | requirements_PEFT.txt | PEFT 과정 | 13.0 (cu130) |
 | requirements_sLLM.txt | 소형 LLM 과정 | 13.0 (cu130) |
 | requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 해당 없음 (PyTorch 미설치) |
+| requirements_unsloth.txt | unsloth 실습 (심화 / PEFT / 소형 LLM 과정에 별도 환경으로 설치) | 13.0 (cu130) |
 
 ## vLLM 실행 예시
 
