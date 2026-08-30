@@ -54,23 +54,26 @@ source /tmp/.venv/bin/activate
 심화, PEFT, 소형 LLM 과정은 unsloth 실습용 환경을 하나 더 만듭니다.
 transformers와 trl 요구 버전이 메인 환경과 달라 분리하며, 해당 실습에서는 커널을 `NotoLab (Unsloth)`로 바꿉니다.
 
-setup을 다시 실행해도 이미 설치가 끝난 환경은 건드리지 않고 그대로 넘어갑니다.
-직접 `pip install`한 패키지도 남습니다.
+## 다시 실행할 때
 
-다만 가상환경은 컨테이너 로컬 디스크(`/tmp`)에 있어서 팟을 재시작하면 사라집니다.
-그때는 setup을 다시 실행하면 됩니다 — 환경이 없어진 것을 확인하고 처음부터 다시 설치합니다.
-이 경우 직접 설치한 패키지는 다시 설치해야 합니다.
+setup을 다시 실행해도 이미 설치가 끝난 환경은 그대로 두므로, 직접 `pip install`한 패키지도 남습니다.
 
-환경이 멀쩡한데도 처음부터 다시 깔고 싶으면 `NOTOLAB_FORCE=1`을 붙이세요.
+가상환경은 컨테이너 로컬 디스크(`/tmp`)에 있어 팟을 재시작하면 사라집니다.
+이때 setup을 다시 실행하면 처음부터 설치되고, 직접 설치했던 패키지는 다시 설치해야 합니다.
+멀쩡한 환경을 처음부터 다시 설치하려면 `NOTOLAB_FORCE=1`을 붙입니다.
 
 ## 내 환경 확인하기
 
 설치가 끝나면 `/workspace/lab/.notolab-env`에 결과가 기록됩니다.
 
 ```
-NOTOLAB_REF=2026-09
+NOTOLAB_REF=2026-09.2
+COURSE=sLLM
+STATUS=ok
 INSTALL_SOURCE=lock
 UNSLOTH_SOURCE=lock
+LLAMACPP=ok
+OLLAMA=ok
 INSTALLED_AT=2026-08-30T12:14:19+09:00
 ```
 
@@ -80,7 +83,8 @@ INSTALLED_AT=2026-08-30T12:14:19+09:00
 | `compile` | 설치 시점에 의존성을 다시 해석했습니다. `main` 스크립트에서는 이 값이 정상이며, 릴리스 스크립트에서 출력되면 버전 고정이 풀린 상태입니다. |
 
 같은 내용이 `/workspace/lab/AGENTS.md` 끝에도 표로 들어갑니다.
-이 파일이 없으면 설치가 중간에 실패한 것입니다.
+`STATUS`가 `ok`면 설치가 끝난 것이고, `failed`면 `FAILED_STEP`에 적힌 단계에서 멈춘 것입니다.
+파일이 아직 없으면 설치가 진행 중입니다.
 
 ## 환경변수
 
