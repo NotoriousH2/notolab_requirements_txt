@@ -1,6 +1,6 @@
 # NotoLab Requirements
 
-Last Updated : 2026-08-30
+Last Updated : 2026-08-31
 
 NotoLab 강의 수강생을 위한 실습 환경 설치 파일 모음입니다.
 NotoLab 컨테이너에서 스크립트 한 줄로 과정에 맞는 Python 환경을 구성합니다.
@@ -64,7 +64,7 @@ setup을 다시 실행해도 이미 설치가 끝난 환경은 그대로 두므�
 설치가 끝나면 `/workspace/lab/.notolab-env`에 결과가 기록됩니다.
 
 ```
-NOTOLAB_REF=2026-09.2
+NOTOLAB_REF=2026-09
 COURSE=sLLM
 STATUS=ok
 INSTALL_SOURCE=lock
@@ -108,6 +108,13 @@ PyPI에서 패키지가 내려가거나 컨테이너 이미지의 드라이버�
 | requirements_PEFT.txt | PEFT 과정 | 13.0 (cu130) |
 | requirements_sLLM.txt | 소형 LLM 과정 | 13.0 (cu130) |
 | requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 해당 없음 (PyTorch 제외) |
+
+심화, PEFT, 소형 LLM 과정은 PyTorch의 CUDA 13.0 빌드(`cu130`)를 설치합니다.
+패키지 목록 맨 위의 `--index-url https://download.pytorch.org/whl/cu130`이 `torch` 계열 세 줄의 출처를 지정합니다.
+수업용 RunPod 템플릿은 CUDA 13.0을 지원하므로 그대로 실행하면 됩니다.
+
+드라이버가 더 낮은 CUDA만 지원하는 환경이라면 이 줄의 `cu130`과 `torch` 계열 버전을 그 빌드에 맞는 조합으로 함께 바꿉니다.
+설치가 끝났는데 `torch.cuda.is_available()`이 `False`를 반환하면 여기를 먼저 확인하세요.
 
 ## vLLM 실행 예시
 
@@ -158,10 +165,20 @@ setup 스크립트는 GitHub에서 패키지 목록을 내려받아 설치합니
 어느 버전에서 받을지는 `NOTOLAB_REF`가 정합니다.
 `main` 스크립트를 쓸 때 패키지 목록 수정은 main에 푸시된 뒤에 수강생 환경으로 반영됩니다.
 
-캐시와 가상환경은 모두 로컬 디스크 `/tmp`에 둡니다.
-`/workspace`는 FUSE 네트워크 스토리지라 대량 I/O가 느립니다.
-
 자세한 규칙은 AGENTS.md를 참고하세요.
+
+## 가상환경과 캐시를 `/tmp`에 두는 이유
+
+RunPod에서 `/workspace`는 FUSE 네트워크 스토리지라, 작은 파일을 수만 개 쓰는 패키지 설치가 특히 느립니다.
+가상환경은 `/tmp/.venv`에 만들고 `/workspace/lab/.venv` 심볼릭 링크로 연결합니다.
+`UV_CACHE_DIR`과 `PIP_CACHE_DIR`, `HF_HOME`도 `/tmp` 아래를 가리킵니다.
+
+RunPod이 아닌 환경에서는 이 전제가 성립하지 않습니다.
+저장소가 한 종류뿐이라면 스크립트의 `/tmp` 경로를 영구 저장소 아래로 바꿔 쓰세요.
+
+- `~/.bashrc`에 기록하는 환경변수 블록
+- `uv venv` 호출과 `.venv` 심볼릭 링크
+- 재실행 스킵 가드의 `/tmp/.venv/bin/python` 확인
 
 ## Unsloth
 
