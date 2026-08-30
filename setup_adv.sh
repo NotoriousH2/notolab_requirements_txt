@@ -53,8 +53,10 @@ wget -qO requirements.txt \
 LOCK_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/$NOTOLAB_REF/requirements-lock-adv.txt"
 if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL "$LOCK_URL" -o requirements-lock.txt 2>/dev/null; then
     echo "  lock 사용: requirements-lock-adv.txt ($NOTOLAB_REF)"
+    INSTALL_SOURCE=lock
 else
     echo "  lock 없음 — manifest에서 해석"
+    INSTALL_SOURCE=compile
     uv pip compile requirements.txt \
         --index-strategy unsafe-best-match \
         --emit-index-url \
@@ -74,8 +76,10 @@ wget -qO requirements_unsloth.txt \
 UNSLOTH_LOCK_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/$NOTOLAB_REF/requirements-lock-unsloth.txt"
 if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL "$UNSLOTH_LOCK_URL" -o requirements-lock-unsloth.txt 2>/dev/null; then
     echo "  lock 사용: requirements-lock-unsloth.txt ($NOTOLAB_REF)"
+    UNSLOTH_SOURCE=lock
 else
     echo "  lock 없음 — manifest에서 해석"
+    UNSLOTH_SOURCE=compile
     uv pip compile requirements_unsloth.txt \
         --index-strategy unsafe-best-match \
         --emit-index-url \
@@ -134,6 +138,31 @@ vllm serve <model_name>
 uvx --python 3.12 --from vllm==<version> vllm serve <model_name>
 ```
 AGENTSEOF
+
+# 설치 결과를 컨테이너 안에 남긴다. startup으로 실행되면 stdout은 팟 로그로 가서
+# 아무도 보지 않으므로, 나중에 버전과 lock 사용 여부를 확인할 수 있어야 한다.
+cat > /workspace/lab/.notolab-env <<EOF
+NOTOLAB_REF=$NOTOLAB_REF
+INSTALL_SOURCE=$INSTALL_SOURCE
+UNSLOTH_SOURCE=$UNSLOTH_SOURCE
+INSTALLED_AT=$(date -Is)
+EOF
+
+cat >> /workspace/lab/AGENTS.md <<EOF
+
+## 이 환경의 버전
+
+| 항목 | 값 |
+|------|-----|
+| 버전 | \`$NOTOLAB_REF\` |
+| 패키지 출처 | \`$INSTALL_SOURCE\` |
+| unsloth 출처 | \`$UNSLOTH_SOURCE\` |
+| 설치 시각 | \`$(date -Is)\` |
+
+`lock`은 릴리스에 동봉된 검증본을 그대로 설치했다는 뜻이고,
+`compile`은 설치 시점에 의존성을 다시 해석했다는 뜻입니다.
+같은 내용이 `/workspace/lab/.notolab-env`에도 있습니다.
+EOF
 
 echo "✅ 환경 설정 완료 (버전: $NOTOLAB_REF)"
 echo "💡 가상환경 활성화: source /tmp/.venv/bin/activate"
