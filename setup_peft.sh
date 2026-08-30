@@ -40,7 +40,10 @@ mkdir -p lab
 cd lab
 
 echo "[5/11] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
-uv venv /tmp/.venv --seed -q
+if [ -d /tmp/.venv ]; then
+    echo "  기존 가상환경을 다시 만듭니다 (직접 설치한 패키지는 사라집니다)"
+fi
+uv venv /tmp/.venv --seed --clear -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
@@ -80,7 +83,10 @@ else
         --emit-index-url \
         -o requirements-lock-unsloth.txt -q
 fi
-uv venv /tmp/.venv-unsloth --seed -q
+if [ -d /tmp/.venv-unsloth ]; then
+    echo "  기존 unsloth 가상환경을 다시 만듭니다"
+fi
+uv venv /tmp/.venv-unsloth --seed --clear -q
 ln -sfn /tmp/.venv-unsloth /workspace/lab/.venv-unsloth
 VIRTUAL_ENV=/tmp/.venv-unsloth uv pip install --python /tmp/.venv-unsloth/bin/python \
     -r requirements-lock-unsloth.txt --index-strategy unsafe-best-match -q

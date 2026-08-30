@@ -58,7 +58,10 @@ mkdir -p lab
 cd lab
 
 echo "[5/10] 가상환경 생성 (/tmp/.venv → 로컬 디스크)"
-uv venv /tmp/.venv --seed -q
+if [ -d /tmp/.venv ]; then
+    echo "  기존 가상환경을 다시 만듭니다 (직접 설치한 패키지는 사라집니다)"
+fi
+uv venv /tmp/.venv --seed --clear -q
 ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
