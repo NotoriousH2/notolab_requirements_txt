@@ -27,7 +27,7 @@ langchain-docling
 sentence_transformers
 langchain_chroma
 langchain_qdrant
-ragas==0.4.0
+ragas==0.4.3
 sacrebleu
 rank_bm25
 kiwipiepy==0.19.1
