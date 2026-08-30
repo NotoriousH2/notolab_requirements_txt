@@ -1,8 +1,4 @@
-# unsloth 실습 전용 환경.
-# transformers/trl 버전이 메인 환경과 어긋나므로 별도 venv(/tmp/.venv-unsloth)에 설치한다.
-
 # PyTorch CUDA 13.0 빌드 지정
-# 메인 환경과 같은 torch를 명시적으로 고정해, uv 캐시에서 하드링크로 공유되게 한다.
 --index-url https://download.pytorch.org/whl/cu130
 torch==2.11.0
 torchvision==0.26.0
@@ -11,24 +7,40 @@ torchaudio==2.11.0
 # 나머지 패키지들은 PyPI에서 설치
 --extra-index-url https://pypi.org/simple
 
-# unsloth (transformers/trl을 자체 버전으로 끌어온다 — 핀하지 않는다)
-unsloth
-unsloth-zoo
+# Unsloth
+# 버전 고정 필수: 고정하지 않으면 다른 패키지(vllm 등)와 함께 해석될 때
+# resolve 는 성공하면서 unsloth 만 조용히 구버전으로 내려감
+unsloth==2026.8.22
+unsloth_zoo
 
-# 학습 유틸리티
-trl
+# 기타 AI/ML 유틸리티
+# transformers / trl 은 unsloth 가 상한(<=5.5.0 / <=0.24.0)을 정하므로 고정하지 않음
 peft
 accelerate
 datasets
-bitsandbytes
 huggingface_hub
 hf_transfer
+bitsandbytes==0.50.0
 
 # 지원 패키지
 setuptools<82.0
+ninja
+packaging
 dotenv
+jsonlines
+tzdata
+
+# 분석·시각화
+tensorboard
+seaborn
 pandas
 
-# ipython
-ipykernel
+# 콘솔 출력 포맷팅
+rich
+
+# 데이터 처리
+pymupdf
+
+#ipython
 ipywidgets
+nbconvert
