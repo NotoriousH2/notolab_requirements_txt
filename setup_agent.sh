@@ -29,9 +29,15 @@ fi
 # 같은 과정이 이미 정상 설치돼 있으면 건드리지 않는다. 자동화가 완료 판정을 잘못해
 # 재시도를 던져도 멀쩡한 환경(수강생이 직접 설치한 패키지 포함)이 날아가지 않는다.
 # 실패로 끝난 환경(STATUS=failed)은 스킵하지 않고 다시 설치한다.
-if [ -z "${NOTOLAB_FORCE:-}" ] \
+#
+# 상태 파일만 보고 스킵하면 안 된다. .notolab-env는 /workspace(영구 볼륨)에 있고
+# venv는 /tmp(컨테이너 로컬)에 있어서, 팟을 재시작하면 STATUS=ok만 남고 venv는
+# 사라진다. 그 상태로 스킵하면 수강생에게는 venv도 ~/.bashrc 설정도 없는 환경만
+# 남는다. 그래서 venv 실체가 살아 있는지까지 확인하고 스킵한다.
+if [ "${NOTOLAB_FORCE:-0}" != "1" ] \
    && grep -q '^STATUS=ok$' "$STATE" 2>/dev/null \
-   && grep -q "^COURSE=$COURSE$" "$STATE" 2>/dev/null; then
+   && grep -q "^COURSE=$COURSE$" "$STATE" 2>/dev/null \
+   && [ -x /tmp/.venv/bin/python ]; then
     echo "이미 설치가 끝난 환경입니다 ($(grep '^INSTALLED_AT=' "$STATE" | cut -d= -f2-))."
     echo "다시 설치하려면: NOTOLAB_FORCE=1 bash setup_agent.sh"
     exit 0
@@ -45,7 +51,7 @@ record_result() {
     rc=$?
     if [ -f "$STATE" ]; then return 0; fi
     mkdir -p /workspace/lab 2>/dev/null || true
-    cat > "$STATE" <<EOF
+    cat > "$STATE" <<EOF || echo "[STATE_WRITE_FAILED] $STATE" >&2
 NOTOLAB_REF=$NOTOLAB_REF
 COURSE=$COURSE
 STATUS=failed

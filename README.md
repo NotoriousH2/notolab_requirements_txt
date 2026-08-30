@@ -81,10 +81,12 @@ INSTALLED_AT=2026-08-30T12:14:19+09:00
 |---|---|---|
 | `NOTOLAB_REF` | `main` | 패키지 목록을 받아올 버전. 릴리스 사본에는 해당 태그가 들어 있습니다. |
 | `NOTOLAB_LOCK` | `1` | `0`이면 lock을 건너뛰고 설치 시점에 다시 해석합니다. |
+| `NOTOLAB_FORCE` | `0` | `1`이면 이미 설치가 끝난 환경이어도 처음부터 다시 설치합니다. |
 
 ```bash
 NOTOLAB_REF=2026-09 bash setup_sllm.sh
 NOTOLAB_LOCK=0 bash setup_sllm.sh
+NOTOLAB_FORCE=1 bash setup_sllm.sh
 ```
 
 오래된 버전은 언젠가 설치가 실패합니다.
