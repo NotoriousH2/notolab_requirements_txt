@@ -35,12 +35,12 @@ bash setup_sllm.sh
 
 ### 과정별 스크립트
 
-| 과정 | 스크립트 | Ollama | llama.cpp | unsloth 환경 |
-|------|----------|:------:|:---------:|:------------:|
-| 심화 | `setup_adv.sh` | | | O |
-| PEFT | `setup_peft.sh` | O | O | O |
-| 소형 LLM | `setup_sllm.sh` | O | O | O |
-| 에이전트 | `setup_agent.sh` | O | O | |
+| 과정 | 스크립트 | Ollama | llama.cpp |
+|------|----------|:------:|:---------:|
+| 심화 | `setup_adv.sh` | | |
+| PEFT | `setup_peft.sh` | O | O |
+| 소형 LLM | `setup_sllm.sh` | O | O |
+| 에이전트 | `setup_agent.sh` | O | O |
 
 ## 설치 후
 
@@ -50,9 +50,6 @@ Jupyter에서는 커널 `NotoLab`을 선택합니다.
 ```bash
 source /tmp/.venv/bin/activate
 ```
-
-심화, PEFT, 소형 LLM 과정은 unsloth 실습용 환경을 하나 더 만듭니다.
-transformers와 trl 요구 버전이 메인 환경과 달라 분리하며, 해당 실습에서는 커널을 `NotoLab (Unsloth)`로 바꿉니다.
 
 ## 다시 실행할 때
 
@@ -71,7 +68,6 @@ NOTOLAB_REF=2026-09.2
 COURSE=sLLM
 STATUS=ok
 INSTALL_SOURCE=lock
-UNSLOTH_SOURCE=lock
 LLAMACPP=ok
 OLLAMA=ok
 INSTALLED_AT=2026-08-30T12:14:19+09:00
@@ -112,7 +108,6 @@ PyPI에서 패키지가 내려가거나 컨테이너 이미지의 드라이버�
 | requirements_PEFT.txt | PEFT 과정 | 13.0 (cu130) |
 | requirements_sLLM.txt | 소형 LLM 과정 | 13.0 (cu130) |
 | requirements_agent.txt | 에이전트 과정 (MCP, Slack, 트레이싱, 브라우저 도구) | 해당 없음 (PyTorch 제외) |
-| requirements_unsloth.txt | unsloth 실습 (심화, PEFT, 소형 LLM 과정에 별도 환경으로 설치) | 13.0 (cu130) |
 
 ## vLLM 실행 예시
 
@@ -167,3 +162,7 @@ setup 스크립트는 GitHub에서 패키지 목록을 내려받아 설치합니
 `/workspace`는 FUSE 네트워크 스토리지라 대량 I/O가 느립니다.
 
 자세한 규칙은 AGENTS.md를 참고하세요.
+
+## Unsloth
+
+Unsloth는 실습할 때 `--no-deps`로 설치합니다.

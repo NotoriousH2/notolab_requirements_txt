@@ -22,8 +22,8 @@ fi
 REPO="NotoriousH2/notolab_requirements_txt"
 LOCKDIR="${LOCKDIR:-locks}"
 SCRIPTS="setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh"
-MANIFESTS="requirements_adv.txt requirements_PEFT.txt requirements_sLLM.txt requirements_agent.txt requirements_unsloth.txt"
-VARIANTS="adv PEFT sLLM agent unsloth"
+MANIFESTS="requirements_adv.txt requirements_PEFT.txt requirements_sLLM.txt requirements_agent.txt"
+VARIANTS="adv PEFT sLLM agent"
 
 # manifest에 적힌 패키지가 lock에 전부 들어있고 == 핀이 일치하는지 확인한다.
 # manifest를 고치고 lock을 다시 뽑지 않은 채 배포하는 사고를 막는 장치다.
@@ -93,7 +93,6 @@ for v in $VARIANTS; do
         PEFT)  manifest="requirements_PEFT.txt" ;;
         sLLM)  manifest="requirements_sLLM.txt" ;;
         agent) manifest="requirements_agent.txt" ;;
-        unsloth) manifest="requirements_unsloth.txt" ;;
     esac
     if [ ! -f "$lock" ]; then
         echo "  없음: $lock — GPU 컨테이너에서 만들어 가져오세요 (TODO.md 참고)" >&2
@@ -145,8 +144,7 @@ bash setup_agent.sh      # 에이전트 과정
     "$OUT"/setup_adv.sh "$OUT"/setup_peft.sh "$OUT"/setup_sllm.sh "$OUT"/setup_agent.sh \
     $MANIFESTS \
     "$LOCKDIR"/requirements-lock-adv.txt "$LOCKDIR"/requirements-lock-PEFT.txt \
-    "$LOCKDIR"/requirements-lock-sLLM.txt "$LOCKDIR"/requirements-lock-agent.txt \
-    "$LOCKDIR"/requirements-lock-unsloth.txt
+    "$LOCKDIR"/requirements-lock-sLLM.txt "$LOCKDIR"/requirements-lock-agent.txt
 
 # 업로드 누락은 404 -> compile 폴백으로 조용히 넘어가므로 반드시 확인한다
 echo

@@ -11,7 +11,7 @@ COURSE=sLLM
 STATE=/workspace/lab/.notolab-env
 
 # 단계 번호는 여기 한 곳에서만 관리한다. 단계가 늘어도 로그 형식은 그대로다.
-TOTAL_STEPS=11
+TOTAL_STEPS=10
 CURRENT_STEP=0
 step() { CURRENT_STEP="$1"; shift; echo "[$CURRENT_STEP/$TOTAL_STEPS] $*"; }
 
@@ -37,8 +37,7 @@ fi
 if [ "${NOTOLAB_FORCE:-0}" != "1" ] \
    && grep -q '^STATUS=ok$' "$STATE" 2>/dev/null \
    && grep -q "^COURSE=$COURSE$" "$STATE" 2>/dev/null \
-   && [ -x /tmp/.venv/bin/python ] \
-   && [ -x /tmp/.venv-unsloth/bin/python ]; then
+   && [ -x /tmp/.venv/bin/python ]; then
     echo "이미 설치가 끝난 환경입니다 ($(grep '^INSTALLED_AT=' "$STATE" | cut -d= -f2-))."
     echo "다시 설치하려면: NOTOLAB_FORCE=1 bash setup_sllm.sh"
     exit 0
@@ -142,35 +141,7 @@ uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
 step 7 "Jupyter 커널 등록"
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
-step 8 "unsloth 실습 환경 (별도 venv + 전용 커널)"
-# unsloth는 transformers/trl을 자체 버전으로 끌어오므로 메인 venv에 넣을 수 없다.
-# 다만 torch/CUDA 계층은 [6]단계에서 uv 캐시에 들어와 있어 하드링크로 공유된다.
-# 그래서 이 단계는 반드시 [6]단계 뒤에 있어야 한다 — 앞에 두면 torch를 새로 받는다.
-wget -qO requirements_unsloth.txt \
-"https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_unsloth.txt"
-UNSLOTH_LOCK_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/$NOTOLAB_REF/requirements-lock-unsloth.txt"
-if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL --retry 3 --retry-delay 2 "$UNSLOTH_LOCK_URL" -o requirements-lock-unsloth.txt 2>/dev/null; then
-    echo "  lock 사용: requirements-lock-unsloth.txt ($NOTOLAB_REF)"
-    UNSLOTH_SOURCE=lock
-else
-    echo "  lock 없음 — manifest에서 해석"
-    UNSLOTH_SOURCE=compile
-    uv pip compile requirements_unsloth.txt \
-        --index-strategy unsafe-best-match \
-        --emit-index-url \
-        -o requirements-lock-unsloth.txt -q
-fi
-if [ -d /tmp/.venv-unsloth ]; then
-    echo "  기존 unsloth 가상환경을 다시 만듭니다"
-fi
-uv venv /tmp/.venv-unsloth --seed --clear -q
-ln -sfn /tmp/.venv-unsloth /workspace/lab/.venv-unsloth
-VIRTUAL_ENV=/tmp/.venv-unsloth uv pip install --python /tmp/.venv-unsloth/bin/python \
-    -r requirements-lock-unsloth.txt --index-strategy unsafe-best-match -q
-/tmp/.venv-unsloth/bin/python -m ipykernel install \
-    --name "NotoLab-Unsloth" --display-name "NotoLab (Unsloth)" > /dev/null 2>&1
-
-step 9 "llama.cpp 설치"
+step 8 "llama.cpp 설치"
 LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.3.0-cuda86/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
 LLAMACPP_MANUAL=0
@@ -204,7 +175,7 @@ else
 fi
 
 
-step 10 "Ollama 설치 (기존 강의자료 호환용)"
+step 9 "Ollama 설치 (기존 강의자료 호환용)"
 # Ollama는 보조 도구이므로 여기서 실패해도 전체 설치를 중단시키지 않는다.
 # (install.sh는 set -eu로 돌고, 컨테이너에서 lsmod/dkms 분기에 걸리면 비0으로 끝난다)
 if curl -fsSL --retry 3 --retry-delay 2 https://ollama.com/install.sh | sh > /dev/null 2>&1; then
@@ -214,7 +185,7 @@ else
     echo "  Ollama 설치에 실패했습니다 — 건너뜁니다 (llama-server로 대체 가능)."
 fi
 
-step 11 "AGENTS.md 생성"
+step 10 "AGENTS.md 생성"
 cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 # Environment Context
 
@@ -231,17 +202,6 @@ cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 | UV_CACHE_DIR | `/tmp/.uv-cache` |
 | PIP_CACHE_DIR | `/tmp/.pip-cache` |
 | HF_HOME | `/tmp/hf` |
-
-## unsloth
-
-unsloth 실습은 별도 환경을 씁니다. transformers/trl 버전이 메인 환경과 달라 같은
-가상환경에 넣을 수 없습니다.
-
-- 가상환경: `/tmp/.venv-unsloth` (심볼릭 링크: `/workspace/lab/.venv-unsloth`)
-- Jupyter 커널: `NotoLab (Unsloth)`
-
-노트북에서 커널을 `NotoLab (Unsloth)`로 바꿔 사용하세요.
-터미널에서는 `source /tmp/.venv-unsloth/bin/activate`.
 
 ## llama.cpp
 
@@ -290,7 +250,6 @@ cat >> /workspace/lab/AGENTS.md <<EOF
 |------|-----|
 | 버전 | \`$NOTOLAB_REF\` |
 | 패키지 출처 | \`$INSTALL_SOURCE\` |
-| unsloth 출처 | \`$UNSLOTH_SOURCE\` |
 | 설치 시각 | \`$(date -Is)\` |
 
 \`lock\`은 릴리스에 동봉된 검증본을 그대로 설치했다는 뜻이고,
@@ -329,7 +288,6 @@ NOTOLAB_REF=$NOTOLAB_REF
 COURSE=$COURSE
 STATUS=ok
 INSTALL_SOURCE=$INSTALL_SOURCE
-UNSLOTH_SOURCE=$UNSLOTH_SOURCE
 LLAMACPP=$([ "$LLAMACPP_MANUAL" = "1" ] && echo manual || echo ok)
 OLLAMA=$OLLAMA_STATE
 INSTALLED_AT=$(date -Is)
