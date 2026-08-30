@@ -34,6 +34,12 @@ uv pip install -r requirements_sLLM.txt --index-strategy unsafe-best-match
 
 `--index-strategy unsafe-best-match` is required on both compile and install: inside a requirements file `--extra-index-url https://pypi.org/simple` outranks the `--index-url` PyTorch index, so without it torch is pulled from PyPI's default wheel instead of the pinned `cu130` build, and `torch==2.11.0+cu130` in a lock file fails to resolve outright.
 
+## Install State Contract
+
+`/workspace/lab/.notolab-env` is a contract, not a log. It is written only when a setup script runs to completion, and only as its last action; otherwise the EXIT trap writes `STATUS=failed` with `FAILED_STEP` (`0` is valid — the run died before step 1). The `STATUS` and `COURSE` key names and their values (`ok` / `failed`) are parsed outside this repository, so adding optional keys is safe, but renaming them or writing the file any earlier is not. Optional keys are per-course (`UNSLOTH_SOURCE`, `LLAMACPP`, `OLLAMA`); a missing key means the course has no such step, not a failure.
+
+The re-run skip guard must also verify the venv still exists. The state file sits on the persistent `/workspace` volume while the venv sits on container-local `/tmp`, so a pod restart leaves `STATUS=ok` behind with no venv — skipping on the state file alone strands the student with neither a venv nor the `~/.bashrc` block.
+
 ## Coding Style & Naming Conventions
 
 Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.14.1` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file.
