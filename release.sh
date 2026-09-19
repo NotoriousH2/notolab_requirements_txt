@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # 수업 시점 버전을 고정한 setup 스크립트와 lock 파일을 GitHub Release로 배포한다.
 #
-#   bash release.sh 2026-09
+#   bash release.sh 2026-09             # 수강생용 (Latest 배지)
+#   bash release.sh 2026-10-rc1 --pre    # 테스트용 (Pre-release, Latest 아님)
 #
 # 전제: locks/ 디렉터리에 GPU 컨테이너에서 **검증을 마친** lock 4개가 있어야 한다.
 #       여기서 lock을 새로 만들지 않는다. 검증하지 않은 lock을 배포하면
@@ -15,9 +16,28 @@ set -e
 
 TAG="${1:-}"
 if [ -z "$TAG" ]; then
-    echo "사용법: bash release.sh <버전>    예: bash release.sh 2026-09" >&2
+    echo "사용법: bash release.sh <버전> [--pre]    예: bash release.sh 2026-09" >&2
     exit 1
 fi
+
+# --pre 는 테스트 발행이다. GitHub이 Latest로 잡지 않으므로 릴리스 페이지에서
+# 수강생에게 최신본으로 보이지 않는다. 에셋은 그대로 공개되므로
+# NOTOLAB_REF=<태그>로 lock 다운로드 경로까지 실제로 검증할 수 있다.
+# (--draft 는 쓸 수 없다. 드래프트 에셋은 인증이 필요해서 스크립트의 curl이
+#  404를 받고 조용히 compile 폴백으로 빠진다.)
+PRERELEASE=""
+PRENOTE=""
+case "${2:-}" in
+    --pre|--prerelease)
+        PRERELEASE="--prerelease"
+        PRENOTE="> **테스트 발행입니다. 수강생은 사용하지 마세요.**
+> 수업용은 Latest 배지가 붙은 릴리스입니다.
+
+"
+        ;;
+    "") ;;
+    *) echo "알 수 없는 옵션: $2 (쓸 수 있는 것: --pre)" >&2; exit 1 ;;
+esac
 
 REPO="NotoriousH2/notolab_requirements_txt"
 LOCKDIR="${LOCKDIR:-locks}"
@@ -118,9 +138,9 @@ for s in $SCRIPTS; do
     bash -n "$OUT/$s"
 done
 
-gh release create "$TAG" -R "$REPO" \
+gh release create "$TAG" -R "$REPO" $PRERELEASE \
     --title "NotoLab 실습 환경 $TAG" \
-    --notes "$TAG 수업 시점으로 고정된 설치 스크립트입니다.
+    --notes "$PRENOTE$TAG 수업 시점으로 고정된 설치 스크립트입니다.
 
 ## 수강생
 
@@ -162,3 +182,9 @@ done
 
 echo
 echo "완료: https://github.com/$REPO/releases/tag/$TAG"
+if [ -n "$PRERELEASE" ]; then
+    echo
+    echo "테스트 발행입니다. Latest로 잡히지 않으므로 수강생 안내에는 보이지 않습니다."
+    echo "  설치 검증: NOTOLAB_REF=$TAG bash setup_peft.sh"
+    echo "  정리:      gh release delete $TAG -R $REPO --cleanup-tag"
+fi
