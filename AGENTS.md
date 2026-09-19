@@ -21,7 +21,7 @@ bash setup_adv.sh        # provision the advanced environment (no Ollama)
 bash setup_peft.sh       # provision PEFT dependencies, llama.cpp, and Ollama
 bash setup_sllm.sh       # provision small-LLM dependencies, llama.cpp, and Ollama
 bash setup_agent.sh      # provision agent-course dependencies, chromium, llama.cpp, and Ollama
-uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock.txt
+uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock-sLLM.txt
 ```
 
 For local dependency checks, create a temporary virtual environment and install the target manifest:
@@ -41,7 +41,7 @@ The re-run skip guard must also verify the venv still exists. The state file sit
 
 ## Coding Style & Naming Conventions
 
-Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.14.1` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file.
+Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.14.1` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file. The files a setup script writes into `/workspace/lab` carry the same variant token (`requirements_sLLM.txt`, `requirements-lock-sLLM.txt`) so a generated lock can be copied straight into `locks/` without renaming, and so `.gitignore` covers it.
 
 Shell scripts should remain Bash-compatible, start with `#!/usr/bin/env bash` and `set -e`, and keep environment variables near the virtual environment setup.
 
@@ -51,7 +51,7 @@ There is no automated test framework. Validate changes with syntax and dependenc
 
 ```bash
 bash -n setup_adv.sh setup_peft.sh setup_sllm.sh setup_agent.sh
-uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock.txt
+uv pip compile requirements_sLLM.txt --index-strategy unsafe-best-match --emit-index-url -o requirements-lock-sLLM.txt
 python -c "import torch, transformers; print(torch.__version__)"
 ```
 

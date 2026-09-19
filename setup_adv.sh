@@ -117,23 +117,23 @@ ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
 step 6 "requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
-wget -qO requirements.txt \
+wget -qO requirements_adv.txt \
 "https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_adv.txt"
 # 릴리스에 동봉된 lock이 있으면 그대로 설치해 수업 시점 환경을 재현한다.
 # lock이 없거나 깨졌으면 manifest에서 다시 해석한다 (NOTOLAB_LOCK=0으로 강제 가능).
 LOCK_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/$NOTOLAB_REF/requirements-lock-adv.txt"
-if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL --retry 3 --retry-delay 2 "$LOCK_URL" -o requirements-lock.txt 2>/dev/null; then
+if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL --retry 3 --retry-delay 2 "$LOCK_URL" -o requirements-lock-adv.txt 2>/dev/null; then
     echo "  lock 사용: requirements-lock-adv.txt ($NOTOLAB_REF)"
     INSTALL_SOURCE=lock
 else
     echo "  lock 없음 — manifest에서 해석"
     INSTALL_SOURCE=compile
-    uv pip compile requirements.txt \
+    uv pip compile requirements_adv.txt \
         --index-strategy unsafe-best-match \
         --emit-index-url \
-        -o requirements-lock.txt -q
+        -o requirements-lock-adv.txt -q
 fi
-uv pip install -r requirements-lock.txt --index-strategy unsafe-best-match -q
+uv pip install -r requirements-lock-adv.txt --index-strategy unsafe-best-match -q
 
 step 7 "Jupyter 커널 등록"
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
