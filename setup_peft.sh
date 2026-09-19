@@ -131,9 +131,12 @@ if [ "${NOTOLAB_LOCK:-1}" = "1" ] && curl -fsSL --retry 3 --retry-delay 2 "$LOCK
 else
     echo "  lock 없음 — manifest에서 해석"
     INSTALL_SOURCE=compile
+    # 이전 실행이 남긴 lock 파일이 있으면 uv가 그 핀을 선호 버전으로 읽어
+    # 옛 버전에 묶인다. -U로 무시해야 NOTOLAB_LOCK=0 탈출구가 실제로 새로 해석한다.
     uv pip compile requirements_PEFT.txt \
         --index-strategy unsafe-best-match \
         --emit-index-url \
+        -U \
         -o requirements-lock-PEFT.txt -q
 fi
 uv pip install -r requirements-lock-PEFT.txt --index-strategy unsafe-best-match -q
