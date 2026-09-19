@@ -16,6 +16,7 @@ langchain
 langchain_core
 langchain_community<0.4.2
 langchain_google_genai
+langchain-deepseek
 langchain_ollama
 langchain_openai
 langchain_huggingface
