@@ -4,6 +4,10 @@
 #   bash release.sh 2026-09             # 수강생용 (Latest 배지)
 #   bash release.sh 2026-10-rc1 --pre    # 테스트용 (Pre-release, Latest 아님)
 #
+# 대상 과정을 릴리스 노트에 넣으려면 NOTOLAB_COURSES 에 줄 단위로 준다.
+#   NOTOLAB_COURSES="2026년 9월 'A 과정'
+#   2026년 9월 'B 과정'" bash release.sh 2026-10
+#
 # 전제: locks/ 디렉터리에 GPU 컨테이너에서 **검증을 마친** lock 4개가 있어야 한다.
 #       여기서 lock을 새로 만들지 않는다. 검증하지 않은 lock을 배포하면
 #       버전 고정의 의미가 사라지기 때문이다. 만드는 방법은 TODO.md 참고.
@@ -38,6 +42,17 @@ case "${2:-}" in
     "") ;;
     *) echo "알 수 없는 옵션: $2 (쓸 수 있는 것: --pre)" >&2; exit 1 ;;
 esac
+
+# 이 릴리스가 어느 기수를 위한 것인지 노트에 남긴다. 발행마다 달라지므로
+# 스크립트에 박지 않고 NOTOLAB_COURSES 로 받는다. 비어 있으면 섹션이 빠진다.
+COURSES_SECTION=""
+if [ -n "${NOTOLAB_COURSES:-}" ]; then
+    COURSES_SECTION="
+## 대상 과정
+
+$(printf '%s\n' "$NOTOLAB_COURSES" | sed '/^[[:space:]]*$/d; s/^[[:space:]]*//; s/^/- /')
+"
+fi
 
 REPO="NotoriousH2/notolab_requirements_txt"
 LOCKDIR="${LOCKDIR:-locks}"
@@ -141,7 +156,7 @@ done
 gh release create "$TAG" -R "$REPO" $PRERELEASE \
     --title "NotoLab 실습 환경 $TAG" \
     --notes "$PRENOTE$TAG 수업 시점으로 고정된 설치 스크립트입니다.
-
+$COURSES_SECTION
 ## 수강생
 
 아래에서 과정에 맞는 \`setup_*.sh\`를 받아 NotoLab 컨테이너에서 실행하세요.
