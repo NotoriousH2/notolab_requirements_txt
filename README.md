@@ -154,8 +154,9 @@ PEFT, 소형 LLM, 에이전트 과정은 사전 빌드된 llama.cpp를 `/opt/lla
 llama-server -hf <저장소>:<양자화> --alias <이름> --port 8080 -c 32768 -ngl auto --jinja
 ```
 
-배포 바이너리는 Compute Capability 8.6 이상 전용입니다.
-그 미만 GPU에서는 설치를 건너뛰고 소스 빌드 안내를 출력합니다.
+배포 바이너리는 Compute Capability 8.6 이상 GPU와 AVX-512(VNNI·VBMI) 지원 CPU 전용입니다.
+CPU 라이브러리가 빌드 머신 CPU에 맞춰 컴파일되어 있어, AVX-512가 없는 CPU(AMD Zen2/Zen3 등)에서는 모델을 올리는 순간 `Illegal instruction (core dumped)`로 종료됩니다.
+setup 스크립트는 GPU와 CPU를 먼저 확인하고, 조건이 맞지 않으면 설치를 건너뛰고 소스 빌드 안내를 출력합니다.
 
 ## 참고 사항 (RunPod/NotoLab 환경 한정)
 
