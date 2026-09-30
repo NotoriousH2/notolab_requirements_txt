@@ -156,10 +156,6 @@ python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/nul
 step 8 "llama.cpp 설치"
 LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.3.0-cuda86/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
-# 배포 바이너리의 libggml-cpu.so는 빌드 머신 CPU에 맞춰(GGML_NATIVE) AVX-512 VNNI·VBMI까지 쓰도록
-# 컴파일되어 있다. 이 명령어가 없는 CPU(AMD Zen2/Zen3 등)에서는 설치와 --version은 통과하지만
-# 모델을 올리는 순간 Illegal instruction으로 죽으므로, 설치 전에 /proc/cpuinfo 플래그로 걸러낸다.
-LLAMACPP_CPU_FLAGS="avx2 fma f16c bmi2 avx512f avx512bw avx512dq avx512vl avx512vbmi avx512_vnni"
 LLAMACPP_MANUAL=0
 
 # 장착된 GPU 중 가장 낮은 Compute Capability를 정수로 환산 (8.6 -> 86, 12.0 -> 120)
@@ -167,25 +163,12 @@ LLAMACPP_MANUAL=0
 MIN_CC=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null \
     | awk -F'[.]' 'NF==2 {v=$1*10+$2; if (m=="" || v<m) m=v} END {if (m!="") print m}' || true)
 
-CPU_FLAGS=$(grep -m1 '^flags' /proc/cpuinfo 2>/dev/null || true)
-MISSING_CPU_FLAGS=""
-for f in $LLAMACPP_CPU_FLAGS; do
-    case " ${CPU_FLAGS#*:} " in
-        *" $f "*) ;;
-        *) MISSING_CPU_FLAGS="$MISSING_CPU_FLAGS $f" ;;
-    esac
-done
-MISSING_CPU_FLAGS=${MISSING_CPU_FLAGS# }
-
 if [ -z "$MIN_CC" ]; then
     LLAMACPP_MANUAL=1
     echo "  Compute Capability를 확인할 수 없어 건너뜁니다."
 elif [ "$MIN_CC" -lt "$LLAMACPP_MIN_CC" ]; then
     LLAMACPP_MANUAL=1
     echo "  Compute Capability $MIN_CC 로 배포 바이너리($LLAMACPP_MIN_CC 이상)와 맞지 않아 건너뜁니다."
-elif [ -n "$MISSING_CPU_FLAGS" ]; then
-    LLAMACPP_MANUAL=1
-    echo "  CPU가 배포 바이너리에 필요한 명령어($MISSING_CPU_FLAGS)를 지원하지 않아 건너뜁니다."
 # 내려받기·압축 해제·바이너리 확인까지 한 조건으로 묶는다. 중간에 실패해도 아래 else의
 # 수동 설치 안내로 떨어질 뿐, 전체 설치가 중단되지 않는다 (llama.cpp는 보조 도구).
 elif curl -fsSL --retry 3 --retry-delay 2 "$LLAMACPP_URL" -o /tmp/llama-cpp.tar.gz 2>/dev/null \
@@ -240,7 +223,7 @@ llama-server -hf <저장소>:<양자화> --alias <이름> --port 8080 -c 32768 -
 ```
 
 GGUF는 `HF_HOME`(`/tmp/hf/hub`)에 캐시됩니다. 받아둔 모델은 `llama-server --cache-list`로 확인합니다.
-배포 바이너리는 Compute Capability 8.6 이상 GPU와 AVX-512(VNNI·VBMI) 지원 CPU 전용입니다.
+배포 바이너리는 Compute Capability 8.6 이상 전용입니다.
 
 ## Ollama
 
@@ -302,11 +285,9 @@ grep -qxF "alias CLAUDE='IS_SANDBOX=1 claude --dangerously-skip-permissions'" "$
 if [ "$LLAMACPP_MANUAL" = "1" ]; then
     echo
     echo "⚠️  llama.cpp가 자동 설치되지 않았습니다. 수동으로 설치해 주세요."
-    echo "    배포 바이너리는 Compute Capability 8.6 이상 GPU와 AVX-512(VNNI·VBMI) 지원 CPU 전용입니다."
-    echo "    (이 서버: Compute Capability ${MIN_CC:-확인 불가}, CPU 미지원 명령어: ${MISSING_CPU_FLAGS:-없음})"
-    echo "    소스 빌드 (약 15분, 이 서버 CPU에 맞춰 컴파일됩니다):"
+    echo "    배포 바이너리는 Compute Capability 8.6 이상 전용입니다 (이 서버: ${MIN_CC:-확인 불가})."
+    echo "    소스 빌드 (약 15분):"
     echo "      apt-get install -y build-essential cmake git libcurl4-openssl-dev"
-    echo "      rm -rf /opt/llama.cpp"
     echo "      git clone --depth 1 --branch v0.3.0 https://github.com/ggml-org/llama.cpp /opt/llama.cpp"
     echo "      cd /opt/llama.cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON \\"
     echo "          -DCMAKE_CUDA_ARCHITECTURES=$MIN_CC -DLLAMA_CURL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON"
