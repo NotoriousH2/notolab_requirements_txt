@@ -40,8 +40,8 @@ accelerate
 datasets
 huggingface_hub
 hf_transfer
-trl==1.9.2
-transformers==5.14.1
+trl==1.15.0
+transformers==5.17.0
 bitsandbytes==0.50.0
 
 # 서빙
