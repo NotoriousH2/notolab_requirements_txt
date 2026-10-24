@@ -145,8 +145,8 @@ step 7 "Jupyter 커널 등록"
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 step 8 "llama.cpp 설치"
-LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.7.0-cu130/llama-cpp-v0.7.0-cu130-linux-x64.tar.gz"
-LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86·sm_89용 커널 + CPU 변종 전체(GGML_CPU_ALL_VARIANTS)로 빌드됨
+LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.7.0-sm86/llama-cpp-v0.7.0-sm86-linux-x64.tar.gz"
+LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86 + CPU 변종 전체(GGML_CPU_ALL_VARIANTS)로 빌드됨
 LLAMACPP_MANUAL=0
 
 # 장착된 GPU 중 가장 낮은 Compute Capability를 정수로 환산 (8.6 -> 86, 12.0 -> 120)
