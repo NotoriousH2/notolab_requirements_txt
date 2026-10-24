@@ -161,7 +161,7 @@ cat > /workspace/lab/AGENTS.md <<'AGENTSEOF'
 
 ## vLLM
 
-vLLM 0.24.0이 가상환경에 설치되어 있습니다.
+vLLM 0.31.0이 가상환경에 설치되어 있습니다.
 
 ```bash
 vllm serve <model_name>

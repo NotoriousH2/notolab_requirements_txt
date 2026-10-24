@@ -118,7 +118,7 @@ PyPI에서 패키지가 내려가거나 컨테이너 이미지의 드라이버�
 
 ## vLLM 실행 예시
 
-심화, PEFT, 소형 LLM 과정은 `vllm==0.24.0`이 가상환경에 함께 설치됩니다.
+심화, PEFT, 소형 LLM 과정은 `vllm==0.31.0`이 가상환경에 함께 설치됩니다.
 
 ```bash
 vllm serve <model_name>
@@ -155,6 +155,7 @@ llama-server -hf <저장소>:<양자화> --alias <이름> --port 8080 -c 32768 -
 ```
 
 배포 바이너리는 Compute Capability 8.6 이상 전용입니다.
+CPU 백엔드는 변종별로 함께 들어 있어 실행 시 CPU에 맞는 것이 선택되므로, AVX-512가 없는 CPU에서도 동작합니다.
 그 미만 GPU에서는 설치를 건너뛰고 소스 빌드 안내를 출력합니다.
 
 ## 참고 사항 (RunPod/NotoLab 환경 한정)

@@ -145,8 +145,8 @@ step 7 "Jupyter 커널 등록"
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 step 8 "llama.cpp 설치"
-LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.3.0-cuda86/llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz"
-LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86(Compute Capability 8.6)으로 빌드됨
+LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.7.0-cu130/llama-cpp-v0.7.0-cu130-linux-x64.tar.gz"
+LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86·sm_89용 커널 + CPU 변종 전체(GGML_CPU_ALL_VARIANTS)로 빌드됨
 LLAMACPP_MANUAL=0
 
 # 장착된 GPU 중 가장 낮은 Compute Capability를 정수로 환산 (8.6 -> 86, 12.0 -> 120)
@@ -232,7 +232,7 @@ OpenAI 호환 엔드포인트는 `http://localhost:11434/v1` 입니다.
 
 ## vLLM
 
-vLLM 0.24.0이 가상환경에 설치되어 있습니다.
+vLLM 0.31.0이 가상환경에 설치되어 있습니다.
 
 ```bash
 vllm serve <model_name>
@@ -274,12 +274,12 @@ if [ "$LLAMACPP_MANUAL" = "1" ]; then
     echo "⚠️  llama.cpp가 자동 설치되지 않았습니다. 수동으로 설치해 주세요."
     echo "    배포 바이너리는 Compute Capability 8.6 이상 전용입니다 (이 서버: ${MIN_CC:-확인 불가})."
     echo "    소스 빌드 (약 15분):"
-    echo "      apt-get install -y build-essential cmake git libcurl4-openssl-dev"
-    echo "      git clone --depth 1 --branch v0.3.0 https://github.com/ggml-org/llama.cpp /opt/llama.cpp"
+    echo "      apt-get install -y build-essential cmake git libssl-dev"
+    echo "      rm -rf /opt/llama.cpp && git clone --depth 1 --branch v0.7.0 https://github.com/ggml-org/llama.cpp /opt/llama.cpp"
     echo "      cd /opt/llama.cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON \\"
-    echo "          -DCMAKE_CUDA_ARCHITECTURES=$MIN_CC -DLLAMA_CURL=ON -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON"
+    echo "          -DCMAKE_CUDA_ARCHITECTURES=$MIN_CC -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON"
     echo "      cmake --build build --config Release -j \$(nproc)"
-    echo "      ln -sf /opt/llama.cpp/build/bin/llama-server /usr/local/bin/llama-server"
+    echo "      for b in llama-server llama-cli llama-bench llama-quantize; do ln -sf /opt/llama.cpp/build/bin/\$b /usr/local/bin/\$b; done"
 fi
 
 # 설치 결과를 컨테이너 안에 남긴다. startup으로 실행되면 stdout은 팟 로그로 가서

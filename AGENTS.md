@@ -8,7 +8,7 @@ This repository maintains Python dependency manifests and NotoLab setup scripts.
 - `requirements_PEFT.txt`: PEFT-focused environment with Ollama setup support, using the PyTorch CUDA 13.0 index.
 - `requirements_sLLM.txt`: small-LLM environment, using the PyTorch CUDA 13.0 index and including pinned `trl` and `transformers`.
 - `requirements_agent.txt`: agent course environment (MCP, Slack, tracing/observability, browser tooling).
-- llama.cpp binaries are not stored in this repository. `setup_peft.sh`, `setup_sllm.sh`, and `setup_agent.sh` download `llama-cpp-v0.3.0-cuda86-linux-x64.tar.gz` (prebuilt CUDA, Compute Capability 8.6) from the `llama-cpp-v0.3.0-cuda86` GitHub release at install time. Publish a new build with `gh release create <tag> <file>` rather than committing the archive.
+- llama.cpp binaries are not stored in this repository. `setup_peft.sh`, `setup_sllm.sh`, and `setup_agent.sh` download `llama-cpp-v0.7.0-cu130-linux-x64.tar.gz` (prebuilt with CUDA 13.0 for Compute Capability 8.6/8.9; built with `GGML_NATIVE=OFF` + `GGML_CPU_ALL_VARIANTS`, so the CPU backend matching the host is picked at runtime and CPUs without AVX-512 work) from the `llama-cpp-v0.7.0-cu130` GitHub release at install time. Publish a new build with `gh release create <tag> <file>` rather than committing the archive.
 - `release.sh`: instructor-side release tool. `bash release.sh <version>` tags the current `origin/main`, bakes that tag into `NOTOLAB_REF` in copies of the four setup scripts, and publishes them plus the four manifests and the four lock files as GitHub release assets. It does **not** generate locks: it consumes validated ones from `locks/` (gitignored) and refuses to publish if a manifest's `==` pins are missing from the matching lock, or if an asset failed to upload. Locks are produced and installation-tested in a GPU container first — see `TODO.md`.
 - `setup_adv.sh`, `setup_peft.sh`, `setup_sllm.sh`, `setup_agent.sh`: Linux/NotoLab bootstrap scripts that create `/workspace/lab`, install `uv`, build `/tmp/.venv`, install dependencies, register the `NotoLab` Jupyter kernel, and write runtime guidance. Each script downloads its matching `requirements_*.txt` from the ref in its `NOTOLAB_REF` variable (default `main`) at install time, so manifest edits take effect only after they are pushed to `main`. `setup_adv.sh` installs neither Ollama nor llama.cpp (8 steps); `setup_peft.sh` / `setup_sllm.sh` install both (10 steps); `setup_agent.sh` installs Ollama and llama.cpp (10 steps).
 
@@ -31,7 +31,7 @@ uv venv .venv
 uv pip install -r requirements_sLLM.txt --index-strategy unsafe-best-match
 ```
 
-`--index-strategy unsafe-best-match` is required on both compile and install: inside a requirements file `--extra-index-url https://pypi.org/simple` outranks the `--index-url` PyTorch index, so without it torch is pulled from PyPI's default wheel instead of the pinned `cu130` build, and `torch==2.11.0+cu130` in a lock file fails to resolve outright.
+`--index-strategy unsafe-best-match` is required on both compile and install: inside a requirements file `--extra-index-url https://pypi.org/simple` outranks the `--index-url` PyTorch index, so without it torch is pulled from PyPI's default wheel instead of the pinned `cu130` build, and `torch==2.13.0+cu130` in a lock file fails to resolve outright.
 
 ## Install State Contract
 
