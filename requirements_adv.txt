@@ -48,7 +48,7 @@ ninja
 packaging
 dotenv
 jsonlines
-kernels==0.15.2
+kernels==0.16.2
 tzdata
 
 # 분석·시각화
