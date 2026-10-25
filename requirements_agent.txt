@@ -1,59 +1,44 @@
-# LangChain 계열
-langchain
-langchain_core
-langchain_community<0.4.2
-langchain_text_splitters
-langchain_openai
-langchain_deepseek
-langchain_ollama
-langchain_google_genai
-langchain_tavily
+pip
+ipykernel
+ipython
+ipywidgets
+langchain[mcp]>=1.4.0,<2
+deepagents==0.7.26
 langgraph
 langgraph-checkpoint-sqlite
-
-# OpenAI
-openai
-
-# MCP
-fastmcp
-mcp
-langchain-mcp-adapters
-
-# 관측·트레이싱
-langfuse
-
-# RAG
-langchain_qdrant
+langchain-openai==1.7.2
+langchain-deepseek
+langchain-ollama
+langchain-google-genai
+langchain-tavily
+langchain-community
+langchain-text-splitters
+langchain-qdrant
 qdrant-client
-
-# 모델 다운로드
-huggingface_hub
-hf_transfer
-
-# 외부 연동
-slack_sdk
-slack_bolt
-discord.py
-youtube-transcript-api
-
-# 데이터 처리
-bs4
-httpx
+langfuse
+openai
+fastmcp>=4.0.1,<5
+mcp
+slack-bolt
+slack-sdk
 aiohttp
+discord.py
+gradio>=6,<7
+youtube-transcript-api
+python-dotenv==1.2.4
+pyyaml
+httpx
 certifi
-
-# 분석·시각화
+beautifulsoup4
+pillow
+pydantic
+typing-extensions
+huggingface-hub
+docling-slim[convert-core,format-html]==2.127.0
+mem0ai[nlp]==2.0.20
+preshed==3.0.13
 matplotlib
 koreanize_matplotlib
-
-# 지원 패키지
-setuptools<82.0
-dotenv
-pyyaml
 rich
 tzdata
-
-# ipython
-ipykernel
-ipywidgets
-nbconvert
+setuptools
