@@ -112,7 +112,6 @@ cat >> ~/.bashrc <<'EOF'
 export UV_CACHE_DIR=/tmp/.uv-cache
 export PIP_CACHE_DIR=/tmp/.pip-cache
 export HF_HOME=/tmp/hf
-export HF_HUB_ENABLE_HF_TRANSFER=1
 export OLLAMA_CONTEXT_LENGTH=16384
 export OLLAMA_KEEP_ALIVE=1200
 if [ -f /tmp/.venv/bin/activate ]; then source /tmp/.venv/bin/activate; fi

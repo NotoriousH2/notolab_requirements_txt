@@ -1,7 +1,10 @@
-pip
+# 노트북
 ipykernel
 ipython
 ipywidgets
+nbconvert
+
+# LangChain 계열
 langchain[mcp]>=1.4.0,<2
 deepagents==0.7.26
 langgraph
@@ -11,34 +14,57 @@ langchain-deepseek
 langchain-ollama
 langchain-google-genai
 langchain-tavily
-langchain-community
+langchain-community<0.4.2
 langchain-text-splitters
+
+# RAG·문서 처리
 langchain-qdrant
 qdrant-client
+docling-slim[convert-core,format-html]==2.127.0
+
+# 사용자 메모리
+mem0ai[nlp]==2.0.20
+preshed==3.0.13
+
+# 관측·트레이싱
 langfuse
+
+# OpenAI
 openai
+
+# MCP
 fastmcp>=4.0.1,<5
 mcp
+
+# 외부 연동
 slack-bolt
 slack-sdk
-aiohttp
 discord.py
-gradio>=6,<7
 youtube-transcript-api
-python-dotenv==1.2.4
-pyyaml
+
+# 웹·데이터 처리
+aiohttp
 httpx
 certifi
 beautifulsoup4
 pillow
-pydantic
-typing-extensions
+
+# 모델 다운로드
 huggingface-hub
-docling-slim[convert-core,format-html]==2.127.0
-mem0ai[nlp]==2.0.20
-preshed==3.0.13
+
+# UI
+gradio>=6,<7
+
+# 분석·시각화
 matplotlib
 koreanize_matplotlib
+
+# 지원 패키지
+pip
+python-dotenv==1.2.4
+pyyaml
+pydantic
+typing-extensions
 rich
 tzdata
-setuptools
+setuptools<82.0
