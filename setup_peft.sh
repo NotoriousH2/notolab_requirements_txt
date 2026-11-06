@@ -145,7 +145,7 @@ step 7 "Jupyter 커널 등록"
 python -m ipykernel install --name "NotoLab" --display-name "NotoLab" > /dev/null 2>&1
 
 step 8 "llama.cpp 설치"
-LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.7.0-sm86/llama-cpp-v0.7.0-sm86-linux-x64.tar.gz"
+LLAMACPP_URL="https://github.com/NotoriousH2/notolab_requirements_txt/releases/download/llama-cpp-v0.9.0-sm86/llama-cpp-v0.9.0-sm86-linux-x64.tar.gz"
 LLAMACPP_MIN_CC=86   # 배포 바이너리는 sm_86 + CPU 변종 전체(GGML_CPU_ALL_VARIANTS)로 빌드됨
 LLAMACPP_MANUAL=0
 
@@ -275,7 +275,7 @@ if [ "$LLAMACPP_MANUAL" = "1" ]; then
     echo "    배포 바이너리는 Compute Capability 8.6 이상 전용입니다 (이 서버: ${MIN_CC:-확인 불가})."
     echo "    소스 빌드 (약 15분):"
     echo "      apt-get install -y build-essential cmake git libssl-dev"
-    echo "      rm -rf /opt/llama.cpp && git clone --depth 1 --branch v0.7.0 https://github.com/ggml-org/llama.cpp /opt/llama.cpp"
+    echo "      rm -rf /opt/llama.cpp && git clone --depth 1 --branch v0.9.0 https://github.com/ggml-org/llama.cpp /opt/llama.cpp"
     echo "      cd /opt/llama.cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON \\"
     echo "          -DCMAKE_CUDA_ARCHITECTURES=$MIN_CC -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON"
     echo "      cmake --build build --config Release -j \$(nproc)"
