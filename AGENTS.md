@@ -57,6 +57,21 @@ python -c "import torch, transformers; print(torch.__version__)"
 
 When changing CUDA, PyTorch, `transformers`, `trl`, or `bitsandbytes` versions, test in a GPU-backed NotoLab container.
 
+## Release Notes
+
+Every student release (`release.sh` without `--pre`) carries a short patch note in `NOTOLAB_NOTES`, one change per line; the script refuses to publish without it. Write it for students, in Korean:
+
+- Never use the manifest names (sLLM, PEFT, 심화/adv). The three PyTorch courses are one group, written as "파인튜닝 과정"; the agent course is "에이전트 과정". The same applies to `NOTOLAB_COURSES`.
+- List only what actually changed since the previous release: version bumps, added or removed packages, changed environment variables. Do not add lines about things that stayed the same ("에이전트 과정은 이전과 같다") or install guidance that is not a change ("Unsloth는 노트북에서 --no-deps로 설치").
+- Name releases by month plus a patch counter: `2026-11`, `2026-11.1`, `2026-11.2`.
+
+```bash
+NOTOLAB_COURSES="2026년 11월 15일 이후 진행하는 파인튜닝 과정 / 에이전트 과정" \
+NOTOLAB_NOTES="파인튜닝 과정: torch 2.14.0 / torchvision 0.29.0 (CUDA 13.0)
+hf_transfer 제거, 모델 다운로드 가속은 HF_XET_HIGH_PERFORMANCE=1로 대체" \
+bash release.sh 2026-11.2
+```
+
 ## Commit & Pull Request Guidelines
 
 Recent history mostly uses concise Conventional Commit-style messages such as `chore: pin transformers to 5.5.0`. Prefer `chore: ...` for dependency and setup updates.

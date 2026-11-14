@@ -10,7 +10,10 @@
 #
 # 패치노트(이전 릴리스 대비 변경 사항)는 NOTOLAB_NOTES 에 줄 단위로 준다.
 # 수강생용 발행에는 필수다. 빠지면 무엇이 바뀌었는지 릴리스만 보고 알 수 없다.
-#   NOTOLAB_NOTES="torch 2.14.0 / vLLM 0.33.0으로 올림
+# 작성 규칙 (자세한 것은 AGENTS.md의 Release Notes):
+#   - sLLM / PEFT / 심화 같은 manifest 이름을 쓰지 않는다. PyTorch 세 과정은 "파인튜닝 과정".
+#   - 실제로 바뀐 것만 쓴다. 그대로인 것, 변경이 아닌 설치 안내는 넣지 않는다.
+#   NOTOLAB_NOTES="파인튜닝 과정: torch 2.14.0 / vLLM 0.33.0으로 올림
 #   hf_transfer 제거" bash release.sh 2026-11.2
 #
 # 전제: locks/ 디렉터리에 GPU 컨테이너에서 **검증을 마친** lock 4개가 있어야 한다.
