@@ -41,7 +41,7 @@ The re-run skip guard must also verify the venv still exists. The state file sit
 
 ## Coding Style & Naming Conventions
 
-Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.20.2` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file. The files a setup script writes into `/workspace/lab` carry the same variant token (`requirements_sLLM.txt`, `requirements-lock-sLLM.txt`) so a generated lock can be copied straight into `locks/` without renaming, and so `.gitignore` covers it.
+Keep requirement files grouped by purpose with short comment headers and one package per line. Pin versions when compatibility matters, for example `transformers==5.20.2` or `setuptools<82.0`. Preserve variant naming: base files use `requirements*.txt`; setup scripts use `setup_*.sh` and should point to the matching requirement file. In `/workspace/lab`, setup scripts save the manifest as plain `requirements.txt` (the same name the lab repos ship, so only one manifest is ever left there, and the script overwrites it) and delete any legacy `requirements_<variant>.txt`. The lock keeps the variant token (`requirements-lock-sLLM.txt`) so a generated lock can be copied straight into `locks/` without renaming, and so `.gitignore` covers it.
 
 Shell scripts should remain Bash-compatible, start with `#!/usr/bin/env bash` and `set -e`, and keep environment variables near the virtual environment setup.
 

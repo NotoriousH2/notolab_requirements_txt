@@ -120,7 +120,10 @@ ln -sfn /tmp/.venv .venv
 source /tmp/.venv/bin/activate
 
 step 6 "requirements 파일 다운로드 및 패키지 설치 (버전: $NOTOLAB_REF)"
-wget -qO requirements_PEFT.txt \
+# 실습 레포도 requirements.txt를 쓰므로 같은 이름으로 받아 덮어쓴다. 과정별 이름(requirements_PEFT.txt)으로
+# 받으면 실습 자료의 requirements.txt와 두 벌이 남아, 어느 쪽이 실제 환경인지 헷갈린다.
+rm -f requirements_PEFT.txt   # 이전 버전 스크립트가 남긴 파일
+wget -qO requirements.txt \
 "https://raw.githubusercontent.com/NotoriousH2/notolab_requirements_txt/$NOTOLAB_REF/requirements_PEFT.txt"
 # 릴리스에 동봉된 lock이 있으면 그대로 설치해 수업 시점 환경을 재현한다.
 # lock이 없거나 깨졌으면 manifest에서 다시 해석한다 (NOTOLAB_LOCK=0으로 강제 가능).
@@ -133,7 +136,7 @@ else
     INSTALL_SOURCE=compile
     # 이전 실행이 남긴 lock 파일이 있으면 uv가 그 핀을 선호 버전으로 읽어
     # 옛 버전에 묶인다. -U로 무시해야 NOTOLAB_LOCK=0 탈출구가 실제로 새로 해석한다.
-    uv pip compile requirements_PEFT.txt \
+    uv pip compile requirements.txt \
         --index-strategy unsafe-best-match \
         --emit-index-url \
         -U \
