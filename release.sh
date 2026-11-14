@@ -8,6 +8,11 @@
 #   NOTOLAB_COURSES="2026년 9월 'A 과정'
 #   2026년 9월 'B 과정'" bash release.sh 2026-10
 #
+# 패치노트(이전 릴리스 대비 변경 사항)는 NOTOLAB_NOTES 에 줄 단위로 준다.
+# 수강생용 발행에는 필수다. 빠지면 무엇이 바뀌었는지 릴리스만 보고 알 수 없다.
+#   NOTOLAB_NOTES="torch 2.14.0 / vLLM 0.33.0으로 올림
+#   hf_transfer 제거" bash release.sh 2026-11.2
+#
 # 전제: locks/ 디렉터리에 GPU 컨테이너에서 **검증을 마친** lock 4개가 있어야 한다.
 #       여기서 lock을 새로 만들지 않는다. 검증하지 않은 lock을 배포하면
 #       버전 고정의 의미가 사라지기 때문이다. 만드는 방법은 TODO.md 참고.
@@ -52,6 +57,19 @@ if [ -n "${NOTOLAB_COURSES:-}" ]; then
 
 $(printf '%s\n' "$NOTOLAB_COURSES" | sed '/^[[:space:]]*$/d; s/^[[:space:]]*//; s/^/- /')
 "
+fi
+
+NOTES_SECTION=""
+if [ -n "${NOTOLAB_NOTES:-}" ]; then
+    NOTES_SECTION="
+## 변경 사항
+
+$(printf '%s\n' "$NOTOLAB_NOTES" | sed '/^[[:space:]]*$/d; s/^[[:space:]]*//; s/^[-*][[:space:]]*//; s/^/- /')
+"
+elif [ -z "$PRERELEASE" ]; then
+    echo "패치노트가 없습니다. NOTOLAB_NOTES 에 변경 사항을 줄 단위로 주세요." >&2
+    echo "  예: NOTOLAB_NOTES=\"torch 2.14.0으로 올림\" bash release.sh $TAG" >&2
+    exit 1
 fi
 
 REPO="NotoriousH2/notolab_requirements_txt"
@@ -156,7 +174,7 @@ done
 gh release create "$TAG" -R "$REPO" $PRERELEASE \
     --title "NotoLab 실습 환경 $TAG" \
     --notes "$PRENOTE$TAG 수업 시점으로 고정된 설치 스크립트입니다.
-$COURSES_SECTION
+$COURSES_SECTION$NOTES_SECTION
 ## 수강생
 
 아래에서 과정에 맞는 \`setup_*.sh\`를 받아 NotoLab 컨테이너에서 실행하세요.

@@ -1,7 +1,7 @@
 # PyTorch CUDA 13.0 빌드 지정
 --index-url https://download.pytorch.org/whl/cu130
-torch==2.13.0
-torchvision==0.28.0
+torch==2.14.0
+torchvision==0.29.0
 torchaudio==2.11.0
 
 # 나머지 패키지들은 PyPI에서 설치
@@ -34,13 +34,13 @@ peft
 accelerate
 datasets
 huggingface_hub
-trl==1.15.0
-hf_transfer
-transformers==5.17.0
+trl==1.18.0
+transformers==5.20.2
 bitsandbytes==0.50.0
+flash-linear-attention==0.6.0
 
 # 서빙
-vllm==0.31.0
+vllm==0.33.0
 
 # 지원 패키지
 setuptools<82.0
@@ -48,7 +48,7 @@ ninja
 packaging
 dotenv
 jsonlines
-kernels==0.16.2
+kernels>=0.17,<0.18
 tzdata
 
 # 분석·시각화
@@ -61,6 +61,7 @@ rich
 
 # 데이터 처리
 pymupdf
+docling==2.150.0
 docling-serve
 
 #ipython

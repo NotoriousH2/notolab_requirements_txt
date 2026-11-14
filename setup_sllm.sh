@@ -99,7 +99,7 @@ cat >> ~/.bashrc <<'EOF'
 export UV_CACHE_DIR=/tmp/.uv-cache
 export PIP_CACHE_DIR=/tmp/.pip-cache
 export HF_HOME=/tmp/hf
-export HF_HUB_ENABLE_HF_TRANSFER=1
+export HF_XET_HIGH_PERFORMANCE=1
 export OLLAMA_CONTEXT_LENGTH=16384
 export OLLAMA_KEEP_ALIVE=1200
 if [ -f /tmp/.venv/bin/activate ]; then source /tmp/.venv/bin/activate; fi
@@ -232,7 +232,7 @@ OpenAI 호환 엔드포인트는 `http://localhost:11434/v1` 입니다.
 
 ## vLLM
 
-vLLM 0.31.0이 가상환경에 설치되어 있습니다.
+vLLM 0.33.0이 가상환경에 설치되어 있습니다.
 
 ```bash
 vllm serve <model_name>

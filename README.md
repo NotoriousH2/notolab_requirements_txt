@@ -118,7 +118,7 @@ PyPI에서 패키지가 내려가거나 컨테이너 이미지의 드라이버�
 
 ## vLLM 실행 예시
 
-심화, PEFT, 소형 LLM 과정은 `vllm==0.31.0`이 가상환경에 함께 설치됩니다.
+심화, PEFT, 소형 LLM 과정은 `vllm==0.33.0`이 가상환경에 함께 설치됩니다.
 
 ```bash
 vllm serve <model_name>
